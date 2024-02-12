@@ -40,7 +40,7 @@ bool    User::sendMessage(const string &message)
 	}
     if (write(this->_fd, truncated.c_str(), truncated.length()) < 1)
 		return false;
-	cout << "\033[1;" << 30 + this->_id % 7 << "m" << this->_id << " > " << truncated << "\033[0m";
+	cout << "\033[0;" << 31 + this->_id % 7 << "m" << this->_id << " > " << truncated << "\033[0m";
 	return true;
 }
 

@@ -1,6 +1,6 @@
-#include "IRC.hpp"
+#include "Struct.hpp"
 #include "User.hpp"
-#include "messages.hpp"
+#include "Macro.hpp"
 
 static void	user_connection(t_data &data)
 {
@@ -25,7 +25,7 @@ static void	user_connection(t_data &data)
 	fcntl(fd_new_con, F_SETFL, O_NONBLOCK); //Imposed by the subject
 	if (epoll_ctl(data.epoll.fd, EPOLL_CTL_ADD, fd_new_con, &epoll_event_new_con) < 0)
 		clear_exit_data(data, "epoll_ctl() failed", 1);
-	cout << "\033[1;" << 30 + user_id % 7 << "m" << "User " << user_id << " connected :)" << endl;
+	cout << "\033[0;" << 31 + user_id % 7 << "m" << "User " << user_id << " connected :)" << endl;
 	++user_id;
 }
 
@@ -60,7 +60,7 @@ static void	user_disconnection(t_data &data, int fd)
 			break;
 		}
 	}
-	cout << "\033[1;" << 30 + id_disc_user % 7 << "m" << "User " << id_disc_user << " disconnected :(" << endl;
+	cout << "\033[0;" << 31 + id_disc_user % 7 << "m" << "User " << id_disc_user << " disconnected :(" << endl;
 }
 
 /*

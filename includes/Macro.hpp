@@ -1,15 +1,12 @@
-#ifndef MESSAGES_HPP
-# define MESSAGES_HPP
+#ifndef MACRO_HPP
+# define MACRO_HPP
 
-/*  General messages    */
+/* General */
 # define    RPL_WELCOME(nick, user, port, host) (": 001 " + nick + " :Welcome to the " + port + " Network, " + nick + "!" + user + "@" + host + "\r\n")
 # define    ERR_UNKNOWNCOMMAND(client, cmd) (": 421 " + client + " " + cmd + " :Unknown cmd(custom)\r\n")
 # define    user_id(nick, user, host) (":" + nick + "!" + user + "@" + host)
 
-
-/*  ****************************************************************************** */
-/*  ******************************** USER messages ******************************* */
-/*  ****************************************************************************** */
+/* User */
 # define    ERR_NEEDMOREPARAMS(client, cmd) ("461 " + client + " " + cmd + " :Not enough parameters\r\n")
 # define    ERR_NOPRIVILEGES(nick) ("481 " + nick + " :Permission denied-\r\n")
 # define    ERR_NOSUCHNICKCHANNEL(nick) ("401 " + nick + " :No such nick\r\n")
@@ -25,7 +22,7 @@
 /*  PING    */
 # define    PING(user_id, param) (user_id + " PING :" + param + "\r\n")
 # define    PONG(user_id, param) (user_id + " PONG :" + param + "\r\n")
-/*  Oper messages   */
+/*  Operator */
 # define    RPL_YOUREOPER(nick) ("381 " + nick + " :You are now an IRC operator\r\n")
 /*  QUIT   */
 # define    QUIT(user_id, reason) (user_id + " QUIT :" + reason + "\r\n")
@@ -35,10 +32,7 @@
 # define    KILL_WOREASON(source) ("You have been disconeected from the server by " + source + "\r\n")
 /*  ****************************************************************************** */
 
-
-/*  ****************************************************************************** */
-                            /*  Channel messages    */
-/*  ****************************************************************************** */
+/* Channel */
 # define    ERR_NOSUCHCHANNEL(nick, channel) (": 403 " + nick + " " + channel + " :No such channel\r\n")
 # define	ERR_USERNOTINCHANNEL(nick, channel) (": 441 " + nick + " " + channel + " :They aren't on that channel\r\n")
 # define 	ERR_NOTONCHANNEL(channel, nick) (": 442 " + channel + " :" + nick + " not on channel\r\n")
@@ -75,7 +69,6 @@
 # define    ERR_KEYSET(channel) (": 467 " + channel + " :Channel key already set\r\n")
 # define    RPL_CHANNELMODEIS(nick, channel) ("324 " + nick + " " + channel + " +itko\r\n")
 # define    ERR_UNKNOWNMODE(mode) (": 472 " + mode + " :is unknown char to me\r\n")
-
 
 
 // # define    PRIVMSG(nick, user, dest, string) (":" + nick + " PRIVMSG " + " :" + str + "\r\n")

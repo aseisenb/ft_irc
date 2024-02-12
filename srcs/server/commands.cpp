@@ -1,6 +1,6 @@
 #include "User.hpp"
 #include "Channel.hpp"
-#include "messages.hpp"
+#include "Macro.hpp"
 #include <sstream>
 #include <ctype.h>
 

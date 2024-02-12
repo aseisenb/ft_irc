@@ -25,6 +25,11 @@ CLAS	= 	$(addsuffix .cpp,		\
 				User				\
 				Channel				\
 			))
+BONUS	= 	$(addsuffix .cpp,		\					\
+			$(addprefix srcs/,		\
+			$(addprefix parsing/,	\
+				parsing				\
+			)))
 MAIN_OBJ = srcs/main.o
 
 OBJS    = ${SRCS:.cpp=.o} ${CLAS:.cpp=.o}
@@ -32,23 +37,29 @@ OBJS    = ${SRCS:.cpp=.o} ${CLAS:.cpp=.o}
 DEPS    = ${OBJS:.o=.d} ${MAIN_OBJ:.o=.d}
 
 RM		:= rm -rf
+RED		:= \033[0;31m
+NC		:= \033[0m
+LGREEN	:= \033[0;32m
+CYAN	:= \033[0;36m
 
 %.o: %.cpp
-	@echo "Compiling $< ${NC}"
+	@echo "\033[1A                                                              "
+	@echo -n "\033[1A"
+	@echo "${CYAN}Compiling $< ${NC}"
 	@${CC} ${FLAGS} -o $@ -c $< ${INCL}
 
 ${NAME}: ${OBJS} ${MAIN_OBJ}
 	@${CC} ${FLAGS} ${OBJS} ${MAIN_OBJ} ${INCL} -o $@ 
-	@echo "Created ${NC}${NAME}${NC}!${NC}"
+	@echo "${LGREEN}Successfully created ${NC}${CYAN}${NAME}${NC}${LGREEN}!${NC}"
 
 all: ${NAME}
 
 clean:
-	@echo "Cleaned ${NAME}${NC}"
+	@echo "${CYAN}Cleaned ${NAME}${NC}"
 	@${RM} ${OBJS} ${MAIN_OBJ} ${DEPS}
 
 fclean:
-	@echo "Cleaned ${NAME}${NC}"
+	@echo "${CYAN}FCleaned ${NAME}${NC}"
 	@${RM} ${OBJS} ${NAME} ${MAIN_OBJ} ${DEPS}
 
 re: fclean all

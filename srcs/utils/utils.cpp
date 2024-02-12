@@ -1,4 +1,4 @@
-#include "IRC.hpp"
+#include "Struct.hpp"
 #include "User.hpp"
 
 string	delete_spaces(const string &to_delete)
@@ -40,4 +40,10 @@ string	ft_itoa(int n)
 
 	ss << n;
 	return  ss.str();
+}
+
+bool	error(const string error_msg)
+{
+	cerr << "Error: " << error_msg << endl;
+	return false;
 }

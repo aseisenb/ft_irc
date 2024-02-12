@@ -1,7 +1,7 @@
 #include "Channel.hpp"
 #include <iostream>
 #include "User.hpp"
-#include "messages.hpp"
+#include "Macro.hpp"
 
 /******************************************************************************/
 /*																		      */

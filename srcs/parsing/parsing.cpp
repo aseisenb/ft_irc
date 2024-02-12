@@ -1,4 +1,4 @@
-#include "IRC.hpp"
+#include "Struct.hpp"
 
 t_data	*g_data_ptr;
 

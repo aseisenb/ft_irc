@@ -5,7 +5,7 @@
 # include <set>
 # include <vector>
 # include <iostream>
-# include "IRC.hpp"
+# include "Struct.hpp"
 # include "Channel.hpp"
 
 using namespace std;

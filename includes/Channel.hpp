@@ -1,23 +1,10 @@
 #ifndef CHANNELS_H
 # define CHANNELS_H
-# include "IRC.hpp"
+# include "Struct.hpp"
 # include <vector>
 
 class Channel
 {
-	private:
-		string			_name;
-		vector<int>		user_fd;
-		vector<int>		ops_fd;
-		vector<int>		invited_fd;
-		bool			invite_only;
-		string			topic;
-		bool			topic_is_set;
-		bool			topic_is_protected;
-		string			key;
-		bool			channel_is_locked;
-		unsigned int	user_MAX;
-		bool			has_user_limit;
 	public:
 		Channel();
 		Channel(string name, int fd_creator);
@@ -48,18 +35,32 @@ class Channel
 		vector<int>		get_users(void) const;
 		vector<int>		get_ops(void) const;
 		vector<int>		get_invited(void) const;
-		bool			get_invite_only(void) const;
 		string			get_topic(void) const;
+		bool			get_invite_only(void) const;
+		string			get_key(void) const;
 		bool			get_topic_set(void) const;
 		bool			get_topic_protected(void) const;
-		string			get_key(void) const;
 		bool			get_channel_locked(void) const;
 		unsigned int	get_user_limit(void) const;
 		bool			get_has_user_limit(void) const;
-
 		void			broadcast(string message, int source);
 		void			print_names(int target_fd);
 		static Channel *getChannel(string name);
+
+	private:
+		string			_name;
+		string			topic;
+		string			key;
+		vector<int>		user_fd;
+		vector<int>		ops_fd;
+		vector<int>		invited_fd;
+		bool			invite_only;
+		bool			topic_is_set;
+		bool			topic_is_protected;
+		bool			channel_is_locked;
+		unsigned int	user_MAX;
+		bool			has_user_limit;
+
 };
 
 #endif

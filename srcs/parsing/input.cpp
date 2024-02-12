@@ -1,6 +1,5 @@
-#include "IRC.hpp"
+#include "Struct.hpp"
 #include "User.hpp"
-
 
 string	read_input(int	user_fd)
 {

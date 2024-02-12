@@ -1,5 +1,5 @@
-#ifndef IRC_HPP
-# define IRC_HPP
+#ifndef STRUCT_HPP
+# define STRUCT_HPP
 # include <iostream>
 # include <string>
 # include <map>

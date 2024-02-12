@@ -1,4 +1,4 @@
-#include "IRC.hpp"
+#include "Struct.hpp"
 
 bool	initialize(int &port, t_data &data)
 {

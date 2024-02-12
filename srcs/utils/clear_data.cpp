@@ -1,4 +1,4 @@
-#include "IRC.hpp"
+#include "Struct.hpp"
 #include "User.hpp"
 
 void	clear_data(t_data &data)
