@@ -90,15 +90,7 @@ void	executeCommands(t_cmd &cmd, User *user)
 			result = user->NAMES(cmd);
 		} else if (cmd.cmd == "PRIVMSG") {
 			result = user->commandPRIVMSG(cmd);
-		} else if (cmd.cmd == "QUIT") {
-			quit_fd = user->commandQUIT(cmd);
-			user_disconnection(*g_data_ptr, quit_fd);
-			break;
-		} else if (cmd.cmd == "KILL" || cmd.cmd == "kill") {
-			quit_fd = user->commandKILL(cmd);
-			if (quit_fd != -1)
-				user_disconnection(*g_data_ptr, quit_fd);
-		} else if (cmd.cmd == "PART") {
+		}else if (cmd.cmd == "PART") {
 			result = user->PART(cmd);
 		} else if (cmd.cmd == "KICK") {
 			result = user->KICK(cmd);
@@ -112,6 +104,14 @@ void	executeCommands(t_cmd &cmd, User *user)
 			result = user->NOTICE(cmd);
 		} else if (cmd.cmd == "INVITE") {
 			result = user->commandINVITE(cmd);
+		}else if (cmd.cmd == "QUIT") {
+			quit_fd = user->commandQUIT(cmd);
+			user_disconnection(*g_data_ptr, quit_fd);
+			break;
+		}else if (cmd.cmd == "KILL" || cmd.cmd == "kill") {
+			quit_fd = user->commandKILL(cmd);
+			if (quit_fd != -1)
+				user_disconnection(*g_data_ptr, quit_fd);
 		} else {
 			user->commandUnknown(cmd);
 		}
