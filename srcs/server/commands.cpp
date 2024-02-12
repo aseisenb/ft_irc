@@ -83,15 +83,15 @@ bool	User::commandNICK(t_cmd &cmd)
         return false;
     }
 
-    /*  Check consecutive */
-    for (size_t i = 1; i < param.length(); ++i)
-    {
-        char ch = param[i];
-        if (!(isalnum(ch) || ch == '[' || ch == ']' || ch == '{' || ch == '}' || ch == '\\' || ch == '|')) {
-            sendMessage(ERR_ERRONEUSNICKNAME(ft_itoa(this->_id), param));
-            return false;
-        }
-    }
+    // /*  Check consecutive */
+    // for (size_t i = 1; i < param.length(); ++i)
+    // {
+    //     char ch = param[i];
+    //     if (!(isalnum(ch) || ch == '[' || ch == ']' || ch == '{' || ch == '}' || ch == '\\' || ch == '|')) {
+    //         sendMessage(ERR_ERRONEUSNICKNAME(ft_itoa(this->_id), param));
+    //         return false;
+    //     }
+    // }
 
     /*  ********************************************************************* */
                     /*  Check if the nick already exists    */

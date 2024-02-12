@@ -25,10 +25,7 @@ SRCS	=	$(addsuffix .cpp,		\
 				clear_data			\
 			)						\
 			$(addprefix utils/,		\
-				find_user_fd		\
-				ft_itoa		\
-				ft_atoi		\
-				delete_spaces			\
+				utils				\
 			)))
 CLAS	= 	$(addsuffix .cpp,		\
 			$(addprefix classes/,	\
