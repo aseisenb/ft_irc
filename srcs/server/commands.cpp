@@ -4,25 +4,20 @@
 #include <sstream>
 #include <ctype.h>
 
-/**
- * ****************************************************************************
- * @brief       send a password to the server during the connection process.
- * 
- * @return      I don't even know why do I need it
- * @link        https://modern.ircdocs.horse/#pass-message
- * 
- * @bug         if multiple params, I take only first
- * @bug         I suppose, the password couldn't passes inside of have_last_param
- * ****************************************************************************
- */
+/* Command Pass sends a password to the server */
 bool	User::commandPASS(t_cmd &cmd)
 {
+    /* 1. Check if the user already has a password. If true sends an error message
+    and returns true to signify that the command has been processed */
     if (_has_password)
         sendMessage(ERR_ALREADYREGISTERED(ft_itoa(_id)));
+    // 2. Check for sufficient number of parameters
     else if (cmd.parameters.size() == 0)
         sendMessage(ERR_NEEDMOREPARAMS(ft_itoa(_id), "PASS"));
+    // 3. Checks if the provided password matches the server's password
     else if (cmd.parameters.front() == server->password)
         _has_password = true;
+    // 4. Checks if the provided password does not match the server's password
     else if (cmd.parameters.front() != server->password)
         sendMessage(ERR_PASSWDMISMATCH(ft_itoa(_id)));
     else
@@ -30,33 +25,16 @@ bool	User::commandPASS(t_cmd &cmd)
     return (true);
 }
 
-/**
- * ****************************************************************************
- * @brief       give the client a nickname or change the previous one
- * 
- * @link        https://modern.ircdocs.horse/#nick-message 
- * @link        https://modern.ircdocs.horse/#connection-registration a proper registration
- * 
- * @bug         if multiple params, I take only first
- * @bug         I assume that have_last_param doesn't contain the NICK param
- * @bug         Doesn't understand what does it mean: 
- *                      Servers MAY allow extra characters, as long as they 
- *                      do not introduce ambiguity in other commands
- * ****************************************************************************
- */
+/* Command NICK gives the client a nickname or can change the previous one */
 bool	User::commandNICK(t_cmd &cmd)
 {
-	/*  ********************************************************************* */
-				/*	Check if password is set	*/
-	/*  ********************************************************************* */
+    // 1. Check if the user already has a password
 	if (!_has_password) {
 		sendMessage(ERR_NOPRIVILEGES(ft_itoa(_id)));
 		return false;
 	}
-
-    /*  ********************************************************************* */
-    /*  Check if proper number of parameters    */
-    /*  ********************************************************************* */
+    /* 2. Check if the nickname was given.
+    If the user already has a nickname, it includes the current nickname in the error message */
     if (cmd.parameters.size() == 0){
         if (_has_nick == 1) {
             sendMessage(ERR_NONICKNAMEGIVEN(_nick));
@@ -66,13 +44,12 @@ bool	User::commandNICK(t_cmd &cmd)
         return false;
     }
 
-    /*  ********************************************************************* */
-    /*  Check if the Nickname is properly formatted */
-    /*  ********************************************************************* */
+    // 3. Check the proper format of the nickname
+    // Retrieve the first character of the proposed nickname
     std::string param = cmd.parameters.front();
     char        firstChar = param[0];
 
-    /*  Check first */
+    // Check if the 1st char is a letter or one of the specified special characters 
     if (!(isalpha(firstChar) || firstChar == '[' || firstChar == ']' || firstChar == '{' || firstChar == '}' ||  firstChar == '\\' || firstChar == '|'))
     {
         if (_has_nick == 1) {
@@ -83,7 +60,7 @@ bool	User::commandNICK(t_cmd &cmd)
         return false;
     }
 
-    // /*  Check consecutive */
+    // //  Check consecutive
     // for (size_t i = 1; i < param.length(); ++i)
     // {
     //     char ch = param[i];
@@ -93,9 +70,7 @@ bool	User::commandNICK(t_cmd &cmd)
     //     }
     // }
 
-    /*  ********************************************************************* */
-                    /*  Check if the nick already exists    */
-    /*  ********************************************************************* */
+    // 4. Check if the nick already exists. If it does append an underscore to the nickname
     for (size_t i = 0; i < g_data_ptr->open_fd.size(); i++)
     {
         if (g_data_ptr->users[g_data_ptr->open_fd[i]]->getNick() == param) {
@@ -105,24 +80,22 @@ bool	User::commandNICK(t_cmd &cmd)
         }
     }
 
-    /*  ********************************************************************* */
-                /*  Inform others about the change of name */
-    /*  ********************************************************************* */
+    // 5. Inform others about the change of name
     if (this->_has_nick)
     {
         for (size_t i = 0; i < g_data_ptr->open_fd.size(); i++)
         {
             User    *user = g_data_ptr->users[g_data_ptr->open_fd[i]];
             if (user->getIdentification() == true)
+                // If the user already had a nickname, it sends a message to all users notifying them about the change
                 user->sendMessage(NICK(_nick, _user, "localhost", param));
         }
     }
 
-    /*  ********************************************************************* */
-                        /*  Assign the nickname */
-    /*  ********************************************************************* */
+    // 6. Assign the nickname to the user
     this->_nick = param;
     _has_nick = true;
+    // if the user has a username, password and is not identified, sets _is_identified to true and sends a welcome message
     if (this->_has_user && this->_has_password && !this->_is_identified)
     {
         this->_is_identified = true;
@@ -131,21 +104,10 @@ bool	User::commandNICK(t_cmd &cmd)
     return true;
 }
 
-/**
- * @brief   specify the username and realname of a new user.
- * 
- * @return  Why do I need it?
- * @link    https://modern.ircdocs.horse/#user-message
- * 
- * @bug     In the protocol, the username could be stated by IDENT protocol
- *          https://datatracker.ietf.org/doc/html/rfc1413 I didn't implement it
- * @bug		It is said that the cmd should contain 0 or *, but I didn't understand why
- */
+/* specify the username and realname of a new user */
 bool	User::USER(t_cmd &cmd)
 {
-	/*	********************************************************************* */
-								/*	Small checks	*/
-	/*	********************************************************************* */
+	// 1. Check if the user has a password
 	if (!_has_password) {
         if (_has_nick == 1) {
 		    sendMessage(ERR_NOPRIVILEGES(_nick));
@@ -154,6 +116,7 @@ bool	User::USER(t_cmd &cmd)
         }
         return false;
 	}
+    // 2. Check if there are parameters provided
 	if (cmd.parameters.size() == 0) {
         if (_has_nick == 1) {
             sendMessage(ERR_NEEDMOREPARAMS(_nick, "USER"));
@@ -162,6 +125,7 @@ bool	User::USER(t_cmd &cmd)
         }
         return false;
 	}
+    // 3. Check if the user is already registered
 	if (_has_user) {
         if (_has_nick == 1) {
             sendMessage(ERR_ALREADYREGISTERED(_nick));
@@ -171,12 +135,11 @@ bool	User::USER(t_cmd &cmd)
         return false;
 	}
 
-	/*	********************************************************************* */
-							/*	Set the username	*/
-	/*	********************************************************************* */
+    // 4. Set the username
 	this->_user = cmd.parameters.front();
 	this->_name = cmd.have_last_param;
 	_has_user = true;
+    // 5. Check for identification and send welcome message
 	if (_has_user && _has_nick && !_is_identified)
 	{
 		this->_is_identified = true;
@@ -185,23 +148,26 @@ bool	User::USER(t_cmd &cmd)
 	return true;
 }
 
-/**
- * @brief 	check if the server connection is still connected 
- * 
- * @link	https://modern.ircdocs.horse/#ping-message 
- */
+/* PING command is used to check the connectivity between the client and the server.
+It checks whether the user is identified and sends an appropriate PING or PONG message */
 bool	User::commandPING(t_cmd &cmd)
 {
-	/*	********************************************************************* */
-						/*	Answer to the request	*/
-	/*	********************************************************************* */
-	if (_is_identified == false) {
+	/* 1. Check whether the user is identified.
+    For an unidentified user, check if PING command has parameters. If no parameters, 
+    send a PING message to the user with the user's ID. If parameters are provided, it includes 
+    the parameters in the PING message.
+    */
+    if (_is_identified == false) {
         if (cmd.parameters.size() == 0) {
             sendMessage(PING(ft_itoa(_id), ""));
         } else {
             sendMessage(PING(ft_itoa(_id), cmd.parameters.front()));
         }
-    } else {
+    } 
+    /* 2. Process PONG for Identified User
+    Constructs the user ID using _nick, _user, and "localhost" as the parameters for user_id(), 
+    and include the parameters from the PING command in the PONG message if they exist */
+    else {
         if (cmd.parameters.size() == 0) {
             sendMessage(PONG(user_id(_nick, _user, "localhost"), ""));
         } else {
@@ -211,61 +177,11 @@ bool	User::commandPING(t_cmd &cmd)
     return true;
 }
 
-/**
- * @brief	 obtain IRC operator privileges
- * 
- * @param   <name> <password>
- * 
- * @link	https://modern.ircdocs.horse/#oper-message
- */
+/* OPER command used to obtain operator privileges. It checks for user identification, number of parameters and the correctness of the LOGIN and PASSWORD parameters */
 bool	User::OPER(t_cmd &cmd)
 {
-	/*	********************************************************************* */
-							/*	Basic checks	*/
-	/*	********************************************************************* */
-	if (_is_identified == false) {
-        if (_has_nick == 1) {
-    		sendMessage(ERR_NOPRIVILEGES(_nick));
-        } else {
-            sendMessage(ERR_NOPRIVILEGES(ft_itoa(_id)));
-        }
-    	return false;
-	}
-	if (cmd.parameters.size() < 2) {
-		sendMessage(ERR_NEEDMOREPARAMS(_nick, "OPER"));
-		return false;
-	}
-
-	/*	********************************************************************* */
-						/*	Check the user and password	*/
-	/*	********************************************************************* */
-	if (cmd.parameters.front() != LOGIN || cmd.parameters.back() != PASSWORD) {
-		sendMessage(ERR_PASSWDMISMATCH(_nick));
-		return false;
-	}
-
-	sendMessage(RPL_YOUREOPER(_nick));
-    server->operator_fd.push_back(_fd);
-	return true;
-}
-
-/**
- * @brief   close the connection between a given client and the server
- * 
- * @param       <target nickname> <comment>
- * @return      the fd of the target user
- * 
- * @link        https://modern.ircdocs.horse/#kill-message
- * @attention   the user has to be deleted from the server side
- */
-int		User::commandKILL(t_cmd &cmd)
-{
-    User    *target_user;
-    string  target_nick;
-
-    /*	********************************************************************* */
-                                /*  Basic tests */
-    /*	********************************************************************* */
+	/* 1. Check User Identification
+    If the user is not identified, send an error message no privileges (ERR_NOPRIVILEGES) */
     if (_is_identified == false) {
         if (_has_nick == 1) {
     		sendMessage(ERR_NOPRIVILEGES(_nick));
@@ -274,36 +190,69 @@ int		User::commandKILL(t_cmd &cmd)
         }
     	return false;
 	}
+    // 2. Check Command Parameters
+	if (cmd.parameters.size() < 2) {
+		sendMessage(ERR_NEEDMOREPARAMS(_nick, "OPER"));
+		return false;
+	}
+
+	// 3. Check if login and password are correct one
+	if (cmd.parameters.front() != LOGIN || cmd.parameters.back() != PASSWORD) {
+		sendMessage(ERR_PASSWDMISMATCH(_nick));
+		return false;
+	}
+
+    // 4. Grant Operator Privileges if all the checks pass
+	sendMessage(RPL_YOUREOPER(_nick)); // send a message that the user is now an operator
+    server->operator_fd.push_back(_fd); // add the user's fd to the list of operator file descriptors
+	return true;
+}
+
+/* Remove the client from the server */
+int		User::commandKILL(t_cmd &cmd)
+{
+    User    *target_user;
+    string  target_nick;
+
+    // 1. Check user identification
+    if (_is_identified == false) {
+        if (_has_nick == 1) {
+    		sendMessage(ERR_NOPRIVILEGES(_nick));
+        } else {
+            sendMessage(ERR_NOPRIVILEGES(ft_itoa(_id)));
+        }
+    	return false;
+	}
+    // 2. Check command parameters
 	if (cmd.parameters.size() < 1) {
 		sendMessage(ERR_NEEDMOREPARAMS(_nick, "KILL"));
 		return -1;
 	}
+    // 3. Check operator privileges:
     if (isOperator() == false) {
         sendMessage(ERR_NOPRIVILEGES(_nick));
         return -1;
     }
 
-    /*	********************************************************************* */
-                /*  Get information about the target user   */
-    /*	********************************************************************* */
-    target_nick = cmd.parameters.front();
-    target_user = User::getUser(target_nick, server);
+    // 4. Get targeted user:
+    target_nick = cmd.parameters.front(); // extract target user's nickname
+    target_user = User::getUser(target_nick, server); // get the user object
     if (target_user == NULL) {
-        sendMessage(ERR_NOSUCHNICKCHANNEL(target_nick));
+        sendMessage(ERR_NOSUCHNICKCHANNEL(target_nick)); // error message in user doesn't exist
         return -1;
     }
 
-    /*	********************************************************************* */
-            /*  Go through the channels and remove the target user  */
-    /*	********************************************************************* */
+    // 5. Kick target user from all channels
     vector<Channel *>::iterator iter_beg = _channels.begin();
     vector<Channel *>::iterator iter_end = _channels.end();
     while (iter_beg != iter_end)
     {
         Channel *myChannel = *iter_beg;
 
-        myChannel->kick_user(target_user->getFd());
+        myChannel->kick_user(target_user->getFd()); // kick the target user from each channel
         target_user->deleteChannel(myChannel->get_name());
+        /* Send quit message to each channel to notify other users about target user leaving the channel. 
+        Plus check if the message should include add info */
         if (myChannel->get_users().size() != 0)
         {
             if (cmd.last_param == 1) {
@@ -311,16 +260,14 @@ int		User::commandKILL(t_cmd &cmd)
             } else {
                 myChannel->broadcast(QUIT2(user_id(target_nick, target_user->getUser(), "localhost"), "default reason"), -1);
             }
-        } else {   // No more users left in the channel
+        } else {   // if no more users left in the channel delete the channel
             this->server->channels.erase(myChannel->get_name());
             delete myChannel;
         }
         iter_beg++;
     }
 
-    /*	********************************************************************* */
-                    /*  Notify the user that he was killed  */
-    /*	********************************************************************* */
+    // 6. Notify the target user that he was deleted from the channel
     if (cmd.last_param == true) {
         target_user->sendMessage(KILL(_nick, cmd.have_last_param));
     } else {
@@ -329,19 +276,10 @@ int		User::commandKILL(t_cmd &cmd)
     return (target_user->getFd());
 }
 
-/**
- * @brief       quit the server
- * 
- * @param       [<reason>]
- * @return      the fd of a user
- * 
- * @link        https://modern.ircdocs.horse/#quit-message
- */
+/* Command that allows you to quit the server */
 int     User::commandQUIT(t_cmd &cmd)
 {
-    /*	********************************************************************* */
-            /*  Go through the channels and remove the target user  */
-    /*	********************************************************************* */
+    // 1. Go through the channels and remove the target user
     vector<Channel *>::iterator iter_beg = _channels.begin();
     vector<Channel *>::iterator iter_end = _channels.end();
     while (iter_beg != iter_end)
@@ -367,25 +305,15 @@ int     User::commandQUIT(t_cmd &cmd)
     return (_fd);
 }
 
-/**
- * @brief   send private messages between users
+/* Command msg sends private messages between users
  * 
  * @param   <receiver>{,<receiver>} <text to be sent> 
  * @example PRIVMSG Angel :yes I'm receiving it !       ; cmd to send a message to Angel.
- * @example PRIVMSG %#bunny :Hi! I have a problem!      ; cmd to send a message to halfops and chanops on #bunny.
- * 
- * @link        https://modern.ircdocs.horse/#privmsg-message 
- * @attention   In general, the irc handles privmsg to users with specific
- *              host mask and server mask. This things wasn't integrated 
- *              in the code. But channel mask were handled
- * @attention   I didn't handle the wildcards
- * @attention   I didn't handle several users
- * 
- * @bug         Do I need to handle the banned from channel cases?
+ * @example PRIVMSG %#bunny :Hi! I have a problem!      ; cmd to send a message to halfops and chanops on #bunny
  */
 bool	User::commandPRIVMSG(t_cmd &cmd)
 {
-    /*  Basic tests */
+    // 1. Check user identification
     if (_is_identified == false) {
         if (_has_nick == 1) {
     		sendMessage(ERR_NOPRIVILEGES(_nick));
@@ -394,59 +322,54 @@ bool	User::commandPRIVMSG(t_cmd &cmd)
         }
     	return false;
 	}
+    // 2. Check command parameters
 	if (cmd.parameters.size() < 1 || (cmd.parameters.size() == 1 && cmd.have_last_param.size() == 0)) {
 		sendMessage(ERR_NEEDMOREPARAMS(_nick, "PRIVMSG"));
 		return false;
 	}
 
+    // 3. Extract the target (channel or user) from the command parameters
     std::string target = cmd.parameters.front();
 
-    /*  if param is channel */
+    // 4. If it's channel than process the message (# means it's a channel)
     if (target[0] == '#')
     {
         Channel *target_channel = Channel::getChannel(target);
 
-        /*  If channel doesn't exist    */ /* Error */
+        //  If channel doesn't exist send an error
         if (!target_channel) {
        		sendMessage(ERR_NOSUCHCHANNEL(_nick, target));
             return false;
         }
-
-        //  I need to check here if I am in the channel!!!!!!!!!!!!
+        //  If the use is not in the channel send an error
         if (target_channel->is_user(_fd) == false) {
             sendMessage(ERR_NOTONCHANNEL(target, _nick));
             return false;
         }
+        // if everythin ok broadcasts the PRIVMSG2 message to the channel
         target_channel->broadcast(PRIVMSG2(_nick, _user, "localhost", target, cmd.have_last_param), _fd);
     }
-    /*  else param is user  */
+    // 4. If it's user than process the message
     else
     {
-        /*  If the target user doesn't exist */
+        // Get the corresponding user object
         User    *target_user = User::getUser(target, server);
-
+        // If the target user doesn't exist send an error
         if (!target_user) {
             sendMessage(ERR_NOSUCHNICKCHANNEL(target));
             return false;
         }
-
-        /*  Send the message    */
+        // If user exists sends the PRIVMSG message to him
         target_user->sendMessage(PRIVMSG(_nick, _user, "localhost", target, cmd.have_last_param));
     }
     return true;
 }
 
-/**
- * @brief   For our project is fully the same
- * 
- * @param   <target>{,<target>} <text to be sent>
- * 
- * @link        https://modern.ircdocs.horse/#notice-message
- * @attention   I didn't handle several users
- */
+/* Command Notice is similar to PRIVMSG but typically used for server notifications or information. It checks user identification, 
+the number of parameters, and whether the target is a channel or user. Depending on the target, it broadcasts the notice to the channel or sends the notice to the user. If any check fails, it sends an appropriate error message and returns false.
+*/
 bool	User::NOTICE(t_cmd &cmd)
 {
-    /*  Basic tests */
     if (_is_identified == false) {
         if (_has_nick == 1) {
     		sendMessage(ERR_NOPRIVILEGES(_nick));
@@ -462,36 +385,31 @@ bool	User::NOTICE(t_cmd &cmd)
 
     std::string target = cmd.parameters.front();
 
-    /*  if param is channel */
     if (target[0] == '#')
     {
         Channel *target_channel = Channel::getChannel(target);
 
-        /*  If channel doesn't exist    */ /* Error */
         if (!target_channel) {
        		sendMessage(ERR_NOSUCHCHANNEL(_nick, target));
             return false;
         }
-        /*  Broadcast to everybody  */
         target_channel->broadcast(PRIVMSG2(_nick, _user, "localhost", target, cmd.have_last_param), _fd);
     }
-    /*  else param is user  */
     else
     {
-        /*  If the target user doesn't exist */
         User    *target_user = User::getUser(target, server);
 
         if (!target_user) {
             sendMessage(ERR_NOSUCHNICKCHANNEL(target));
             return false;
         }
-    
-        /*  Send the message    */
         target_user->sendMessage(PRIVMSG(_nick, _user, "localhost", target, cmd.have_last_param));
     }
     return true;
 }
 
+/* Handles unknown commands. If the command is "CAP," it returns true, meaning that this command is recognized and handled elsewhere. If the command is not 
+"CAP," it sends an error message meaning an unknown command and returns false */
 bool     User::commandUnknown(t_cmd &cmd)
 {
 	if (cmd.cmd == "CAP")
