@@ -318,19 +318,10 @@ bool	User::commandPART(t_cmd &cmd)
 	return true;
 }
 
-/**
- * @brief	request the forced removal of a user from a channel
- * 
- * @example		KICK <channel> <user> *( "," <user> ) [<comment>]
- * 
- * @attention	One user at a time
- * @link		https://modern.ircdocs.horse/#kick-message
- */
+/*request the forced removal of a user from a channel*/
 bool	User::commandKICK(t_cmd &cmd)
 {
-	/*	********************************************************************* */
-								/*	Basic tests	*/
-	/*	********************************************************************* */
+	/*	Basic tests	*/
 	if (_is_identified == false) 
 	{
         if (_has_nick == 1) 
@@ -349,9 +340,7 @@ bool	User::commandKICK(t_cmd &cmd)
 		return false;
 	}
 
-	/*	********************************************************************* */
-				/*	Get the information from the user	*/
-	/*	********************************************************************* */
+	/*	Get the information from the user	*/
 	string	channel_name = cmd.parameters.at(0);
 	string	target_name	= cmd.parameters.at(1);
 	Channel	*channel = Channel::getChannel(channel_name);
@@ -383,10 +372,7 @@ bool	User::commandKICK(t_cmd &cmd)
 		return false;
 	}
 	
-	/*	********************************************************************* */
-					/*	Kick the user from the channel	*/
-	/*	********************************************************************* */
-
+	/*	Kick the user from the channel	*/
 	if (cmd.last_param == true) 
 	{
 		channel->transmit(RPL_KICK2(user_id(_nick, _user, "localhost"), channel_name, target_name, cmd.have_last_param), -1);
@@ -406,18 +392,11 @@ bool	User::commandKICK(t_cmd &cmd)
 	return true;
 }
 
-/**
- * @brief	set or remove options (or modes) from a given target
- * 
- * @example	<target> [<modestring> [<mode arguments>...]]
- * 
- * @attention	The User mode has only +o mode
- * @attention	The channel mode has +i, 
- */
+/*set or remove options (or modes) from a given target*/
 bool	User::commandMODE(t_cmd &cmd)
 {
 	/*	Basic tests	*/
-		/*	If not authenticated	*/
+	/*	If not authenticated	*/
 	if (_is_identified == false)		// Not identified
 	{
         if (_has_nick == 1) 
@@ -468,10 +447,7 @@ bool	User::commandMODE(t_cmd &cmd)
 	}
 	if (cmd.parameters.front()[0] != '#')
 		return true;
-
-	/*	********************************************************************* */
-							/*	Get user information	*/
-	/*	********************************************************************* */
+	/*	Get user information	*/
 	string	channel_name;
 	Channel	*channel;
 	
@@ -488,9 +464,7 @@ bool	User::commandMODE(t_cmd &cmd)
 		return false;
 	}
 
-	/*	********************************************************************* */
-							/*	Work with modes	*/
-	/*	********************************************************************* */
+	/*	Work with modes	*/
 	string mode;
 	
 	mode = cmd.parameters.at(1);
