@@ -29,16 +29,21 @@ bool	User::commandPASS(t_cmd &cmd)
 bool	User::commandNICK(t_cmd &cmd)
 {
     // 1. Check if the user already has a password
-	if (!_has_password) {
+	if (!_has_password) 
+    {
 		sendMessage(ERR_NOPRIVILEGES(ft_itoa(_id)));
 		return false;
 	}
     /* 2. Check if the nickname was given.
     If the user already has a nickname, it includes the current nickname in the error message */
-    if (cmd.parameters.size() == 0){
-        if (_has_nick == 1) {
+    if (cmd.parameters.size() == 0)
+    {
+        if (_has_nick == 1) 
+        {
             sendMessage(ERR_NONICKNAMEGIVEN(_nick));
-        } else {
+        } 
+        else 
+        {
             sendMessage(ERR_NONICKNAMEGIVEN(ft_itoa(this->_id)));
         }
         return false;
@@ -52,9 +57,12 @@ bool	User::commandNICK(t_cmd &cmd)
     // Check if the 1st char is a letter or one of the specified special characters 
     if (!(isalpha(firstChar) || firstChar == '[' || firstChar == ']' || firstChar == '{' || firstChar == '}' ||  firstChar == '\\' || firstChar == '|'))
     {
-        if (_has_nick == 1) {
+        if (_has_nick == 1) 
+        {
             sendMessage(ERR_ERRONEUSNICKNAME(_nick, param));
-        } else {
+        } 
+        else 
+        {
             sendMessage(ERR_ERRONEUSNICKNAME(ft_itoa(this->_id), param));
         }
         return false;
@@ -73,8 +81,10 @@ bool	User::commandNICK(t_cmd &cmd)
     // 4. Check if the nick already exists. If it does append an underscore to the nickname
     for (size_t i = 0; i < g_data_ptr->open_fd.size(); i++)
     {
-        if (g_data_ptr->users[g_data_ptr->open_fd[i]]->getNick() == param) {
-            if (g_data_ptr->open_fd[i] != this->_fd) {
+        if (g_data_ptr->users[g_data_ptr->open_fd[i]]->getNick() == param) 
+        {
+            if (g_data_ptr->open_fd[i] != this->_fd) 
+            {
                 param = param + "_";
             }
         }
@@ -108,28 +118,40 @@ bool	User::commandNICK(t_cmd &cmd)
 bool	User::commandUSER(t_cmd &cmd)
 {
 	// 1. Check if the user has a password
-	if (!_has_password) {
-        if (_has_nick == 1) {
+	if (!_has_password) 
+    {
+        if (_has_nick == 1) 
+        {
 		    sendMessage(ERR_NOPRIVILEGES(_nick));
-        } else {
+        } 
+        else 
+        {
             sendMessage(ERR_NOPRIVILEGES(ft_itoa(_id)));
         }
         return false;
 	}
     // 2. Check if there are parameters provided
-	if (cmd.parameters.size() == 0) {
-        if (_has_nick == 1) {
+	if (cmd.parameters.size() == 0) 
+    {
+        if (_has_nick == 1) 
+        {
             sendMessage(ERR_NEEDMOREPARAMS(_nick, "USER"));
-        } else {
+        } 
+        else 
+        {
     	    sendMessage(ERR_NEEDMOREPARAMS(ft_itoa(_id), "USER"));
         }
         return false;
 	}
     // 3. Check if the user is already registered
-	if (_has_user) {
-        if (_has_nick == 1) {
+	if (_has_user) 
+    {
+        if (_has_nick == 1) 
+        {
             sendMessage(ERR_ALREADYREGISTERED(_nick));
-        } else {
+        } 
+        else 
+        {
     	    sendMessage(ERR_ALREADYREGISTERED(ft_itoa(_id)));
         }
         return false;
@@ -157,20 +179,28 @@ bool	User::commandPING(t_cmd &cmd)
     send a PING message to the user with the user's ID. If parameters are provided, it includes 
     the parameters in the PING message.
     */
-    if (_is_identified == false) {
-        if (cmd.parameters.size() == 0) {
+    if (_is_identified == false) 
+    {
+        if (cmd.parameters.size() == 0) 
+        {
             sendMessage(PING(ft_itoa(_id), ""));
-        } else {
+        } 
+        else 
+        {
             sendMessage(PING(ft_itoa(_id), cmd.parameters.front()));
         }
     } 
     /* 2. Process PONG for Identified User
     Constructs the user ID using _nick, _user, and "localhost" as the parameters for user_id(), 
     and include the parameters from the PING command in the PONG message if they exist */
-    else {
-        if (cmd.parameters.size() == 0) {
+    else 
+    {
+        if (cmd.parameters.size() == 0) 
+        {
             sendMessage(PONG(user_id(_nick, _user, "localhost"), ""));
-        } else {
+        } 
+        else 
+        {
     		sendMessage(PONG(user_id(_nick, _user, "localhost"), cmd.parameters.front()));
         }
     }
@@ -182,22 +212,28 @@ bool	User::commandOPER(t_cmd &cmd)
 {
 	/* 1. Check User Identification
     If the user is not identified, send an error message no privileges (ERR_NOPRIVILEGES) */
-    if (_is_identified == false) {
-        if (_has_nick == 1) {
+    if (_is_identified == false) 
+    {
+        if (_has_nick == 1) 
+        {
     		sendMessage(ERR_NOPRIVILEGES(_nick));
-        } else {
+        } 
+        else 
+        {
             sendMessage(ERR_NOPRIVILEGES(ft_itoa(_id)));
         }
     	return false;
 	}
     // 2. Check Command Parameters
-	if (cmd.parameters.size() < 2) {
+	if (cmd.parameters.size() < 2) 
+    {
 		sendMessage(ERR_NEEDMOREPARAMS(_nick, "OPER"));
 		return false;
 	}
 
 	// 3. Check if login and password are correct one
-	if (cmd.parameters.front() != LOGIN || cmd.parameters.back() != PASSWORD) {
+	if (cmd.parameters.front() != LOGIN || cmd.parameters.back() != PASSWORD) 
+    {
 		sendMessage(ERR_PASSWDMISMATCH(_nick));
 		return false;
 	}
@@ -215,21 +251,27 @@ int		User::commandKILL(t_cmd &cmd)
     string  target_nick;
 
     // 1. Check user identification
-    if (_is_identified == false) {
-        if (_has_nick == 1) {
+    if (_is_identified == false) 
+    {
+        if (_has_nick == 1) 
+        {
     		sendMessage(ERR_NOPRIVILEGES(_nick));
-        } else {
+        } 
+        else 
+        {
             sendMessage(ERR_NOPRIVILEGES(ft_itoa(_id)));
         }
     	return false;
 	}
     // 2. Check command parameters
-	if (cmd.parameters.size() < 1) {
+	if (cmd.parameters.size() < 1) 
+    {
 		sendMessage(ERR_NEEDMOREPARAMS(_nick, "KILL"));
 		return -1;
 	}
     // 3. Check operator privileges:
-    if (isOperator() == false) {
+    if (isOperator() == false) 
+    {
         sendMessage(ERR_NOPRIVILEGES(_nick));
         return -1;
     }
@@ -237,7 +279,8 @@ int		User::commandKILL(t_cmd &cmd)
     // 4. Get targeted user:
     target_nick = cmd.parameters.front(); // extract target user's nickname
     target_user = User::getUser(target_nick, server); // get the user object
-    if (target_user == NULL) {
+    if (target_user == NULL) 
+    {
         sendMessage(ERR_NOSUCHNICKCHANNEL(target_nick)); // error message in user doesn't exist
         return -1;
     }
@@ -255,12 +298,17 @@ int		User::commandKILL(t_cmd &cmd)
         Plus check if the message should include add info */
         if (myChannel->get_users().size() != 0)
         {
-            if (cmd.last_param == 1) {
+            if (cmd.last_param == 1) 
+            {
                 myChannel->broadcast(QUIT2(user_id(target_nick, target_user->getUser(), "localhost"), cmd.have_last_param), -1);
-            } else {
+            } 
+            else 
+            {
                 myChannel->broadcast(QUIT2(user_id(target_nick, target_user->getUser(), "localhost"), "default reason"), -1);
             }
-        } else {   // if no more users left in the channel delete the channel
+        } 
+        else 
+        {   // if no more users left in the channel delete the channel
             this->server->channels.erase(myChannel->get_name());
             delete myChannel;
         }
@@ -268,9 +316,12 @@ int		User::commandKILL(t_cmd &cmd)
     }
 
     // 6. Notify the target user that he was deleted from the channel
-    if (cmd.last_param == true) {
+    if (cmd.last_param == true) 
+    {
         target_user->sendMessage(KILL(_nick, cmd.have_last_param));
-    } else {
+    } 
+    else 
+    {
         target_user->sendMessage(KILL(_nick, "default reason"));
     }
     return (target_user->getFd());
@@ -306,24 +357,30 @@ int     User::commandQUIT(t_cmd &cmd)
 }
 
 /* Command msg sends private messages between users
- * 
- * @param   <receiver>{,<receiver>} <text to be sent> 
- * @example PRIVMSG Angel :yes I'm receiving it !       ; cmd to send a message to Angel.
- * @example PRIVMSG %#bunny :Hi! I have a problem!      ; cmd to send a message to halfops and chanops on #bunny
+ *
+ * Example of usage:
+ * <receiver>{,<receiver>} <text to be sent> 
+ * PRIVMSG Bob :yes I'm receiving it !       - send a message to Bob.
+ * PRIVMSG %#chat :Hi! How are you?          - send a message on #chat
  */
 bool	User::commandPRIVMSG(t_cmd &cmd)
 {
     // 1. Check user identification
-    if (_is_identified == false) {
-        if (_has_nick == 1) {
+    if (_is_identified == false) 
+    {
+        if (_has_nick == 1) 
+        {
     		sendMessage(ERR_NOPRIVILEGES(_nick));
-        } else {
+        } 
+        else 
+        {
             sendMessage(ERR_NOPRIVILEGES(ft_itoa(_id)));
         }
     	return false;
 	}
     // 2. Check command parameters
-	if (cmd.parameters.size() < 1 || (cmd.parameters.size() == 1 && cmd.have_last_param.size() == 0)) {
+	if (cmd.parameters.size() < 1 || (cmd.parameters.size() == 1 && cmd.have_last_param.size() == 0)) 
+    {
 		sendMessage(ERR_NEEDMOREPARAMS(_nick, "PRIVMSG"));
 		return false;
 	}
@@ -337,12 +394,14 @@ bool	User::commandPRIVMSG(t_cmd &cmd)
         Channel *target_channel = Channel::getChannel(target);
 
         //  If channel doesn't exist send an error
-        if (!target_channel) {
+        if (!target_channel) 
+        {
        		sendMessage(ERR_NOSUCHCHANNEL(_nick, target));
             return false;
         }
         //  If the use is not in the channel send an error
-        if (target_channel->is_user(_fd) == false) {
+        if (target_channel->is_user(_fd) == false) 
+        {
             sendMessage(ERR_NOTONCHANNEL(target, _nick));
             return false;
         }
@@ -355,7 +414,8 @@ bool	User::commandPRIVMSG(t_cmd &cmd)
         // Get the corresponding user object
         User    *target_user = User::getUser(target, server);
         // If the target user doesn't exist send an error
-        if (!target_user) {
+        if (!target_user) 
+        {
             sendMessage(ERR_NOSUCHNICKCHANNEL(target));
             return false;
         }
@@ -370,15 +430,20 @@ the number of parameters, and whether the target is a channel or user. Depending
 */
 bool	User::commandNOTICE(t_cmd &cmd)
 {
-    if (_is_identified == false) {
-        if (_has_nick == 1) {
+    if (_is_identified == false) 
+    {
+        if (_has_nick == 1) 
+        {
     		sendMessage(ERR_NOPRIVILEGES(_nick));
-        } else {
+        } 
+        else 
+        {
             sendMessage(ERR_NOPRIVILEGES(ft_itoa(_id)));
         }
     	return false;
 	}
-	if (cmd.parameters.size() < 1 || (cmd.parameters.size() == 1 && cmd.have_last_param.size() == 0)) {
+	if (cmd.parameters.size() < 1 || (cmd.parameters.size() == 1 && cmd.have_last_param.size() == 0)) 
+    {
 		sendMessage(ERR_NEEDMOREPARAMS(_nick, "NOTICE"));
 		return false;
 	}
@@ -389,7 +454,8 @@ bool	User::commandNOTICE(t_cmd &cmd)
     {
         Channel *target_channel = Channel::getChannel(target);
 
-        if (!target_channel) {
+        if (!target_channel) 
+        {
        		sendMessage(ERR_NOSUCHCHANNEL(_nick, target));
             return false;
         }
@@ -399,7 +465,8 @@ bool	User::commandNOTICE(t_cmd &cmd)
     {
         User    *target_user = User::getUser(target, server);
 
-        if (!target_user) {
+        if (!target_user) 
+        {
             sendMessage(ERR_NOSUCHNICKCHANNEL(target));
             return false;
         }
@@ -419,5 +486,4 @@ bool     User::commandUnknown(t_cmd &cmd)
     else
         sendMessage(ERR_UNKNOWNCOMMAND(ft_itoa(_id), cmd.cmd));
     return (false);
-
 }
