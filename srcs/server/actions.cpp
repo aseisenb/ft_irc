@@ -177,7 +177,7 @@ static void	user_command(int user_fd, t_data &data)
 }
 
 /*  This function performs different server related actions based on events detected by epoll. It checks for new connections, disconnections and executes commands */
-void	server_actions(t_data &data, int i)
+void	central_server(t_data &data, int i)
 {
 	// 1. Finding user file descriptor based on the epoll event's fd
 	const int user_fd = find_user_fd(data.epoll.events[i].data.fd, data);

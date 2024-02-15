@@ -300,11 +300,11 @@ int		User::commandKILL(t_cmd &cmd)
         {
             if (cmd.last_param == 1) 
             {
-                myChannel->broadcast(QUIT2(user_id(target_nick, target_user->getUser(), "localhost"), cmd.have_last_param), -1);
+                myChannel->transmit(QUIT2(user_id(target_nick, target_user->getUser(), "localhost"), cmd.have_last_param), -1);
             } 
             else 
             {
-                myChannel->broadcast(QUIT2(user_id(target_nick, target_user->getUser(), "localhost"), "default reason"), -1);
+                myChannel->transmit(QUIT2(user_id(target_nick, target_user->getUser(), "localhost"), "default reason"), -1);
             }
         } 
         else 
@@ -342,9 +342,9 @@ int     User::commandQUIT(t_cmd &cmd)
         if (myChannel->get_users().size() != 0) // There is someone in the channel
         {
             if (cmd.have_last_param.size() != 0)
-                myChannel->broadcast(QUIT2(user_id(_nick, _user, "localhost"), cmd.have_last_param), -1);
+                myChannel->transmit(QUIT2(user_id(_nick, _user, "localhost"), cmd.have_last_param), -1);
             else
-                myChannel->broadcast(QUIT2(user_id(_nick, _user, "localhost"), "default reason"), -1);
+                myChannel->transmit(QUIT2(user_id(_nick, _user, "localhost"), "default reason"), -1);
         }
         else    // No more users left in the channel
         {
@@ -406,7 +406,7 @@ bool	User::commandPRIVMSG(t_cmd &cmd)
             return false;
         }
         // if everythin ok broadcasts the PRIVMSG2 message to the channel
-        target_channel->broadcast(PRIVMSG2(_nick, _user, "localhost", target, cmd.have_last_param), _fd);
+        target_channel->transmit(PRIVMSG2(_nick, _user, "localhost", target, cmd.have_last_param), _fd);
     }
     // 4. If it's user than process the message
     else
@@ -459,7 +459,7 @@ bool	User::commandNOTICE(t_cmd &cmd)
        		sendMessage(ERR_NOSUCHCHANNEL(_nick, target));
             return false;
         }
-        target_channel->broadcast(PRIVMSG2(_nick, _user, "localhost", target, cmd.have_last_param), _fd);
+        target_channel->transmit(PRIVMSG2(_nick, _user, "localhost", target, cmd.have_last_param), _fd);
     }
     else
     {
