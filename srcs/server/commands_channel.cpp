@@ -3,15 +3,7 @@
 #include <sstream>
 #include <ctype.h>
 
-/**
- * @brief	Channel cmd
- * 
- * @link    https://modern.ircdocs.horse/#channel-operations
- * 
- * @attention   The code allow to add only 1 channel at a time
- * @attention	Doesn't support "0" parameter which says to quit everything
- * @attention	The code don't handle TOOMANYCHANNELS, BANNEDFROMCHAN
- */
+/* allows yser to create/join a channel (the user that cerates the channel is given operator privilages)*/ 
 bool	User::commandJOIN(t_cmd &cmd)
 {
 	Channel	*channel;
@@ -85,16 +77,7 @@ bool	User::commandJOIN(t_cmd &cmd)
 	return true;
 }
 
-/**
- * @brief	[AFTER MODE cmd]	change or view the topic of the given channel
- * 
- * @example	TOPIC <channel> [<topic>]
- * @example		TOPIC #test :New topic  ; Setting the topic on "#test" to "New topic".
- * @example		TOPIC #test :           ; Clearing the topic on "#test"
- * @example		TOPIC #test             ; Checking the topic for "#test"
- * 
- * @link	https://modern.ircdocs.horse/#topic-message
- */
+/*This command allows user so set a topic of a chanel*/
 bool	User::commandTOPIC(t_cmd &cmd)
 {
 	/*	General checks	*/
@@ -163,13 +146,7 @@ bool	User::commandTOPIC(t_cmd &cmd)
 	return true;
 }
 
-/**
- * @brief	view the nicknames joined to a channel and membership prefixes
- * 
- * @param	<channel>{,<channel>}
- * 
- * @attention	one channel at a time
- */
+/*give a list of names that are in the channel*/
 bool	User::commandNAMES(t_cmd &cmd)
 {
 	Channel	*target_channel;
@@ -209,22 +186,10 @@ bool	User::commandNAMES(t_cmd &cmd)
   /*	List cmd?	*/
 
 
-/**
- * @brief	invite a user to a channel
- * 
- * @param	INVITE	<nickname> <channel>
- * 
- * @example		INVITE Wiz #foo_bar    					; Invite Wiz to #foo_bar
- * @example		 :dan-!d@localhost INVITE Wiz #test		; dan- has invited Wiz to the channel #test
- * 
- * @attention	Doesn't handle no parameter(to show all channels where it was invited)
- * @link		https://modern.ircdocs.horse/#invite-message
- */
+/*invite a user to a channel*/
 bool	User::commandINVITE(t_cmd &cmd)
 {
-	/*	********************************************************************* */
-								/*	Basic tests	*/
-	/*	********************************************************************* */
+	/*	Basic tests	*/
 	if (_is_identified == false) 
 	{
         if (_has_nick == 1) 
@@ -243,10 +208,7 @@ bool	User::commandINVITE(t_cmd &cmd)
 		return false;
 	}
 
-	/*	********************************************************************* */
-					/*	Get the information about the user	*/
-	/*	********************************************************************* */
-
+	/*	Get the information about the user	*/
 	string	channel_name;
 	string	user_name;
 	Channel	*channel;
@@ -283,28 +245,18 @@ bool	User::commandINVITE(t_cmd &cmd)
 		return false;
 	}
 
-	/*	********************************************************************* */
-							/*	Invite the user	*/
-	/*	********************************************************************* */
+	/*	Invite the user	*/
 	sendMessage(RPL_INVITING(user_id(_nick, _user, "localhost"), _nick, user->getNick(), channel_name));
 	channel->invite_user(user->getFd());
 	user->sendMessage(INVITE(user_id(_nick, _user, "localhost"), user->getNick(), channel_name));
 	return true;
 }
 
-/**
- * @brief	removes the user from the given channel(s)
- * 
- * @example		PART #twilight_zone             ; dan- is leaving the channel "#twilight_zone"
- * @example		PART #twilight_zone "AFK"		; dan- is leaving the channel "#twilight_zone": AFK
- * 
- * @attention	Works one part at a time
- * @link		https://modern.ircdocs.horse/#part-message
- */
+/*removes the user from the given channel(s)*/
 bool	User::commandPART(t_cmd &cmd)
 {
 	
-                                /*  Basic checks  */
+    /*  Basic checks  */
     
 	/*	Basic tests	*/
 		/*	If not authenticated	*/
