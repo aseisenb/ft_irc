@@ -3,14 +3,14 @@
 #include <sstream>
 #include <ctype.h>
 
-/* allows yser to create/join a channel (the user that cerates the channel is given operator privilages)*/ 
+/* allows user to create/join a channel (the user that cerates the channel is given operator privilages)*/ 
 bool	User::commandJOIN(t_cmd &cmd)
 {
 	Channel	*channel;
 	string	channel_name;
 	string	channel_key;
 
-    /*  Basic checks  */
+    // 1. Perfroming general checks
 	if (_is_identified == false) 
 	{
         if (_has_nick == 1) {
@@ -26,7 +26,7 @@ bool	User::commandJOIN(t_cmd &cmd)
 		return false;
 	}
 
-	/*	Parse the channel info */
+	// 2. Parsing the channel info
 	channel_name = cmd.parameters.front();
     if (channel_name[0] != '#') 
 	{
@@ -39,7 +39,7 @@ bool	User::commandJOIN(t_cmd &cmd)
 		channel_key = cmd.parameters.back();
 	channel = Channel::getChannel(channel_name);
 
-	/*	Interract with the channel	*/
+	// 3. Interracting with the channel
     if (channel)
 	{
 		if (channel->get_invite_only() == true && channel->is_invited(_fd) == false) 
@@ -80,7 +80,7 @@ bool	User::commandJOIN(t_cmd &cmd)
 /*This command allows user so set a topic of a chanel*/
 bool	User::commandTOPIC(t_cmd &cmd)
 {
-	/*	General checks	*/
+	// 1. Perfroming general checks
 	if (_is_identified == false)
 	{
         if (_has_nick == 1)
@@ -98,7 +98,7 @@ bool	User::commandTOPIC(t_cmd &cmd)
 	}
 
 
-	/*	Get user information	*/
+	// 2. Getting user info
 	string	channel_name = cmd.parameters.front();
 	Channel	*channel = Channel::getChannel(channel_name);
 
@@ -113,7 +113,7 @@ bool	User::commandTOPIC(t_cmd &cmd)
 		return false;
 	}
 
-	/*	Reading the topic	*/
+	// 3. Reading the topic
 	if (cmd.last_param == false)
 	{
 		if (channel->get_make_topic() == false) 
@@ -127,7 +127,7 @@ bool	User::commandTOPIC(t_cmd &cmd)
 		return true;
 	}
 
-	/*	Write the topic	*/
+	// 4. Writing the topic
 	if (channel->get_protected_topic() == true && channel->is_operator(_fd) == false) 
 	{
 		sendMessage(ERR_CHANOPRIVSNEEDED(user_id(_nick, _user, "localhost"), channel_name));
@@ -151,7 +151,7 @@ bool	User::commandNAMES(t_cmd &cmd)
 {
 	Channel	*target_channel;
 
-	/*	Basic tests	*/
+	// 1. Performing general checks
 	if (_is_identified == false) 
 	{
         if (_has_nick == 1) {
@@ -182,14 +182,10 @@ bool	User::commandNAMES(t_cmd &cmd)
 	return true;
 }
 
-
-  /*	List cmd?	*/
-
-
 /*invite a user to a channel*/
 bool	User::commandINVITE(t_cmd &cmd)
 {
-	/*	Basic tests	*/
+	// 1. General checks
 	if (_is_identified == false) 
 	{
         if (_has_nick == 1) 
@@ -208,7 +204,7 @@ bool	User::commandINVITE(t_cmd &cmd)
 		return false;
 	}
 
-	/*	Get the information about the user	*/
+	// 2. Getting the info about the user
 	string	channel_name;
 	string	user_name;
 	Channel	*channel;
@@ -245,7 +241,7 @@ bool	User::commandINVITE(t_cmd &cmd)
 		return false;
 	}
 
-	/*	Invite the user	*/
+	// 3. Inviting the user
 	sendMessage(RPL_INVITING(user_id(_nick, _user, "localhost"), _nick, user->getNick(), channel_name));
 	channel->invite_user(user->getFd());
 	user->sendMessage(INVITE(user_id(_nick, _user, "localhost"), user->getNick(), channel_name));
@@ -256,10 +252,7 @@ bool	User::commandINVITE(t_cmd &cmd)
 bool	User::commandPART(t_cmd &cmd)
 {
 	
-    /*  Basic checks  */
-    
-	/*	Basic tests	*/
-		/*	If not authenticated	*/
+	// 1. General checks
 	if (_is_identified == false) 
 	{
         if (_has_nick == 1) 
@@ -272,17 +265,14 @@ bool	User::commandPART(t_cmd &cmd)
         }
     	return false;
 	}
-		/*	If not enough parameters	*/
+	// 2. Checking parameters
 	if (cmd.parameters.size() == 0) 
 	{
 		sendMessage(ERR_NEEDMOREPARAMS(_nick, "PART"));
 		return false;
 	}
 
-	/*	Check the channel	*/
-
-		/*	If channel doesn't exist  */
-			/*	ERR_NOSUCHCHANNEL	*/
+	// 3. Checking the channel
 	string	channel_name = cmd.parameters.front(); 
 	Channel	*channel = Channel::getChannel(channel_name);
 	
@@ -296,8 +286,7 @@ bool	User::commandPART(t_cmd &cmd)
 		sendMessage(ERR_NOTONCHANNEL(channel_name, _nick));
 		return false;
 	}
-	/*	If OK	*/
-		/*	Notify everybody that client quitted the channel  */
+	// 4. If everything ok notifing everybody that client quitted the channel
 	if (cmd.last_param == false) 
 	{
 		channel->transmit(PART_WOREASON(_nick, _user, "localhost", channel_name), -1);
@@ -309,7 +298,7 @@ bool	User::commandPART(t_cmd &cmd)
 	}
 	channel->part(_fd);
 	_channels.erase(find(_channels.begin(), _channels.end(), channel));
-	/* If channel empty, remove it */
+	// 5. Removing the channel if it's empty
 	if (channel->get_users().empty() == true)
 	{
 		g_data_ptr->channels.erase(channel->get_name());
@@ -321,7 +310,7 @@ bool	User::commandPART(t_cmd &cmd)
 /*request the forced removal of a user from a channel*/
 bool	User::commandKICK(t_cmd &cmd)
 {
-	/*	Basic tests	*/
+	// 1. General checks
 	if (_is_identified == false) 
 	{
         if (_has_nick == 1) 
@@ -340,7 +329,7 @@ bool	User::commandKICK(t_cmd &cmd)
 		return false;
 	}
 
-	/*	Get the information from the user	*/
+	// 2.	Getting the info from the user
 	string	channel_name = cmd.parameters.at(0);
 	string	target_name	= cmd.parameters.at(1);
 	Channel	*channel = Channel::getChannel(channel_name);
@@ -372,7 +361,7 @@ bool	User::commandKICK(t_cmd &cmd)
 		return false;
 	}
 	
-	/*	Kick the user from the channel	*/
+	// 3. Kicking the user from the channel
 	if (cmd.last_param == true) 
 	{
 		channel->transmit(RPL_KICK2(user_id(_nick, _user, "localhost"), channel_name, target_name, cmd.have_last_param), -1);
@@ -383,7 +372,7 @@ bool	User::commandKICK(t_cmd &cmd)
 	channel->kick_user(target_user->getFd());
 	target_user->deleteChannel(channel_name);
 
-	//If channel empty, remove Channel
+	// 4. Removing channel if it's empty
 	if (channel->get_users().empty() == true)
 	{
 		_channels.erase(find(_channels.begin(), _channels.end(), channel));
@@ -395,8 +384,7 @@ bool	User::commandKICK(t_cmd &cmd)
 /*set or remove options (or modes) from a given target*/
 bool	User::commandMODE(t_cmd &cmd)
 {
-	/*	Basic tests	*/
-	/*	If not authenticated	*/
+	// Gen checks
 	if (_is_identified == false)		// Not identified
 	{
         if (_has_nick == 1) 
@@ -409,12 +397,14 @@ bool	User::commandMODE(t_cmd &cmd)
         }
     	return false;
 	} 
-	else if (cmd.parameters.size() < 1)			// Bad num of params
+	// Checking nmber of params
+	else if (cmd.parameters.size() < 1)
 	{
 		sendMessage(ERR_NEEDMOREPARAMS(_nick, "MODE"));
 		return false;
 	} 
-	else if (cmd.parameters.size() == 1)		// specific cmd
+	// for specific command
+	else if (cmd.parameters.size() == 1)
 	{
 		string	myBeautifulString;
 
@@ -447,7 +437,7 @@ bool	User::commandMODE(t_cmd &cmd)
 	}
 	if (cmd.parameters.front()[0] != '#')
 		return true;
-	/*	Get user information	*/
+	// Getting user info
 	string	channel_name;
 	Channel	*channel;
 	
@@ -464,7 +454,7 @@ bool	User::commandMODE(t_cmd &cmd)
 		return false;
 	}
 
-	/*	Work with modes	*/
+	// MODES
 	string mode;
 	
 	mode = cmd.parameters.at(1);
