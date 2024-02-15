@@ -18,9 +18,7 @@ bool	User::commandJOIN(t_cmd &cmd)
 	string	channel_name;
 	string	channel_key;
 
-    /*  ********************************************************************* */
-                                /*  Basic checks  */
-    /*  ********************************************************************* */
+    /*  Basic checks  */
 	if (_is_identified == false) {
         if (_has_nick == 1) {
     		sendMessage(ERR_NOPRIVILEGES(_nick));
@@ -34,9 +32,7 @@ bool	User::commandJOIN(t_cmd &cmd)
 		return false;
 	}
 
-	/*  ********************************************************************* */
-							/*	Parse the channel info */
-	/*  ********************************************************************* */
+	/*	Parse the channel info */
 	channel_name = cmd.parameters.front();
     if (channel_name[0] != '#') {
         sendMessage(ERR_BADCHANMASK(channel_name));
@@ -48,9 +44,7 @@ bool	User::commandJOIN(t_cmd &cmd)
 		channel_key = cmd.parameters.back();
 	channel = Channel::getChannel(channel_name);
 
-	/*  ********************************************************************* */
-						/*	Interract with the channel	*/
-	/*  ********************************************************************* */
+	/*	Interract with the channel	*/
     if (channel)
 	{
 		if (channel->get_invite_only() == true && channel->is_invited(_fd) == false) {
@@ -96,9 +90,7 @@ bool	User::commandJOIN(t_cmd &cmd)
  */
 bool	User::TOPIC(t_cmd &cmd)
 {
-	/*  ********************************************************************* */
-							/*	General checks	*/
-	/*  ********************************************************************* */
+	/*	General checks	*/
 	if (_is_identified == false)
 	{
         if (_has_nick == 1) {
@@ -113,9 +105,7 @@ bool	User::TOPIC(t_cmd &cmd)
 	}
 
 
-	/*  ********************************************************************* */
-						/*	Get user information	*/
-	/*  ********************************************************************* */
+	/*	Get user information	*/
 	string	channel_name = cmd.parameters.front();
 	Channel	*channel = Channel::getChannel(channel_name);
 
@@ -127,10 +117,7 @@ bool	User::TOPIC(t_cmd &cmd)
 		return false;
 	}
 
-
-	/*  ********************************************************************* */
-							/*	Reading the topic	*/
-	/*  ********************************************************************* */
+	/*	Reading the topic	*/
 	if (cmd.last_param == false)
 	{
 		if (channel->get_topic_set() == false) {
@@ -141,12 +128,7 @@ bool	User::TOPIC(t_cmd &cmd)
 		return true;
 	}
 
-
-	/*  ********************************************************************* */
-							/*	Write the topic	*/
-	/*  ********************************************************************* */
-
-
+	/*	Write the topic	*/
 	if (channel->get_topic_protected() == true && channel->is_op(_fd) == false) {
 		sendMessage(ERR_CHANOPRIVSNEEDED(user_id(_nick, _user, "localhost"), channel_name));
 		return false;
@@ -200,9 +182,9 @@ bool	User::NAMES(t_cmd &cmd)
 	return true;
 }
 
-/*  ********************************************************************* */
-							/*	List cmd?	*/
-/*  ********************************************************************* */
+
+  /*	List cmd?	*/
+
 
 /**
  * @brief	invite a user to a channel
@@ -283,9 +265,9 @@ bool	User::commandINVITE(t_cmd &cmd)
  */
 bool	User::PART(t_cmd &cmd)
 {
-	/*  ********************************************************************* */
+	
                                 /*  Basic checks  */
-    /*  ********************************************************************* */
+    
 	/*	Basic tests	*/
 		/*	If not authenticated	*/
 	if (_is_identified == false) {
