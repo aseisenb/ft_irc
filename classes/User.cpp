@@ -7,13 +7,13 @@ User::User(): server(g_data_ptr)
 
 User::User(const User &copy): server(g_data_ptr)
 {
-	cout << "Copy User constructor called" << endl; //TODO
+	cout << "Copy User constructor called" << endl;
 	(void)copy;
 }
 
 User& User::operator=(const User &cpy)
 {
-	cout << "User Assignment operator called" << endl; //TODO
+	cout << "User Assignment operator called" << endl;
 	if (this == &cpy)
 		return (*this);
 	(void)cpy;
@@ -44,10 +44,7 @@ bool    User::sendMessage(const string &message)
 	return true;
 }
 
-
-/*	************************************************************************* */
-						/*	Static functions	*/
-/*	************************************************************************* */
+// Functions
 User *User::getUser(std::string nick, t_data *server)
 {
     User *myUser;
@@ -101,10 +98,7 @@ bool	User::deleteChannel(string channel_name)
     return false;
 }
 
-
-/*
-				GETTERS
-*/
+// Getters
 int	User::getFd(void) const {return this->_fd;};
 int User::getId(void) const {return this->_id;};
 string User::getNick(void) const {return this->_nick;};

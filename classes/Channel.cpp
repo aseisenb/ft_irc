@@ -8,9 +8,6 @@ Channel::Channel()
 	cout << "Default Channel constructor called" << endl;
 }
 
-/*
-	The parameter name MUST NOT be empty. It has to be checked in the JOIN cmd
-*/
 Channel::Channel(string name, int fd_creator) : invite_only(false), topic_is_set(false), topic_is_protected(false), channel_is_locked(false), user_MAX(0), has_user_limit(false) 
 {
 	if (name[0] == '#')
@@ -18,7 +15,7 @@ Channel::Channel(string name, int fd_creator) : invite_only(false), topic_is_set
 	else
 		this->_name = "#" + name;
 	this->add_user(fd_creator);
-	cout << "Name, Fd Creator Channel Constructor called" << endl;
+	cout << "Name, fd creator Channel Constructor called" << endl;
 }
 
 Channel::~Channel()
@@ -26,18 +23,7 @@ Channel::~Channel()
 	cout << "Channel destructor called" << endl;
 }
 
-/******************************************************************************/
-/*																		      */
-/*                                  END RO3                                   */
-/*																		      */
-/******************************************************************************/
-
-/******************************************************************************/
-/*																		      */
-/*                               	START CHECKERS                            */
-/*																		      */
-/******************************************************************************/
-
+// Checkers
 bool	Channel::is_user(int fd_user)
 {
 	vector<int>::iterator it = this->user_fd.begin();
@@ -83,18 +69,7 @@ bool	Channel::is_invited(int fd_user)
 	return false;
 }
 
-/******************************************************************************/
-/*																		      */
-/*                               	END CHECKERS                              */
-/*																		      */
-/******************************************************************************/
-
-/******************************************************************************/
-/*																		      */
-/*                              START FUNCTIONS                               */
-/*																		      */
-/******************************************************************************/
-
+// Functions 
 void	Channel::add_user(int fd_user)
 {
 	if (this->user_fd.empty())
@@ -147,18 +122,7 @@ void	Channel::unset_locked_mode()
 	this->key.clear();
 }
 
-/******************************************************************************/
-/*																		      */
-/*                              END FUNCTIONS                                 */
-/*																		      */
-/******************************************************************************/
-
-/******************************************************************************/
-/*																		      */
-/*                              START SETTERS  	                              */
-/*																		      */
-/******************************************************************************/
-
+// Setters
 void	Channel::make_invite_only(bool mode)
 {
 	this->invite_only = mode;
@@ -193,18 +157,7 @@ void	Channel::set_has_user_limit(bool mode)
 	this->has_user_limit = mode;
 }
 
-/******************************************************************************/
-/*																		      */
-/*                              END SETTERS	                                  */
-/*																		      */
-/******************************************************************************/
-
-/******************************************************************************/
-/*																		      */
-/*                              START UTILS		                              */
-/*																		      */
-/******************************************************************************/
-
+// Utils
 void	Channel::transmit(string message, int fd_emitter)
 {
 	vector<int>::iterator it = this->user_fd.begin();
@@ -260,18 +213,7 @@ Channel *Channel::getChannel(string name)
     return (myChannel);
 }
 
-/******************************************************************************/
-/*																		      */
-/*                              END UTILS		                              */
-/*																		      */
-/******************************************************************************/
-
-/******************************************************************************/
-/*																		      */
-/*                            START GETTERS		                              */
-/*																		      */
-/******************************************************************************/
-
+// Getters
 string			Channel::get_name(void) const {return this->_name;};
 vector<int>		Channel::get_users(void) const {return this->user_fd;};
 vector<int>		Channel::get_ops(void) const {return this->ops_fd;};
@@ -284,10 +226,3 @@ string			Channel::get_key(void) const {return this->key ;};
 bool			Channel::get_channel_locked(void) const {return this->channel_is_locked ;};
 unsigned int	Channel::get_user_limit(void) const {return this->user_MAX ;};
 bool			Channel::get_has_user_limit(void) const {return this->has_user_limit ;};
-
-/******************************************************************************/
-/*																		      */
-/*                            END GETTERS		                              */
-/*																		      */
-/******************************************************************************/
-
