@@ -9,7 +9,7 @@ static bool	parse_password(char *password_str, string &password)
 	password = password_str;
 	// 2. Check if the password is empty or has a length less than 1
 	if (password.empty() || password.size() < 1)
-		return error("password can't be empty");
+		return error("Error: password can't be empty");
 	// 3. If all checks pass, return true
 	return true;
 }

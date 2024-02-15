@@ -13,20 +13,20 @@ using namespace std;
 class User
 {
 	private:
-		/*	User info	*/
+		// User info
 		int		_id, _fd;
 		string	_nick, _user, _name;
 		
-		/*	Authentication level	*/
+		// Authentication
 		bool	_has_password, _has_nick, _has_user, _is_identified;
 		
-		/*	Pointers to the classes the user is in	*/
+		// Pointers to user classes
 		vector<Channel *>	_channels;
 		t_data				*server;
 
 	public:
-		list<t_cmd>		cmds; //TODO change back  to private
-		/*	Constructors and Destructor	*/
+		list<t_cmd>		cmds;
+
 		User();
 		~User();
 		User(int fd, int id);
@@ -34,13 +34,10 @@ class User
 		User& operator=(const User &cpy);
 
 
-		/*	Class	Methods	*/
+		// Methods
 		void	pushCommand(t_cmd &cmd);
 		bool	sendMessage(const string &message);
-
-		/*	cmd	handler	*/
-		void	executeCommands(t_cmd &cmd);
-
+		void	commandsHandler(t_cmd &cmd);
 		bool	commandPASS(t_cmd &cmd);
 		bool	commandNICK(t_cmd &cmd);
 		bool	commandUSER(t_cmd &cmd);
@@ -58,15 +55,11 @@ class User
 		bool	commandNOTICE(t_cmd &cmd);
 		bool	commandINVITE(t_cmd &cmd);
 		bool	commandUnknown(t_cmd &cmd);
-
 		bool	deleteChannel(string channel_name);
 
-
-		/*	Static function	*/
 		static User *getUser(std::string nick, t_data *server);
 
-
-		/*	Getters and Setters	*/
+		//Getters
 		int		getId(void) const;
 		int		getFd(void) const;
 		string	getNick(void) const;

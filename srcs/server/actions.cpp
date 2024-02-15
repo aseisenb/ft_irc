@@ -86,7 +86,7 @@ static void	user_disconnection(t_data &data, int fd)
 }
 
 /* This is the command handler, it executes all the commands */
-void	executeCommands(t_cmd &cmd, User *user)
+void	commandsHandler(t_cmd &cmd, User *user)
 {
 	// 1. Loop that continues as long as the user's command queue is not empty
 	while (user->cmds.empty() == false)
@@ -173,7 +173,7 @@ static void	user_command(int user_fd, t_data &data)
         return ;
     }
 	// 4. Execute nice command 
-	executeCommands(cmd, data.users[user_fd]);
+	commandsHandler(cmd, data.users[user_fd]);
 }
 
 /*  This function performs different server related actions based on events detected by epoll. It checks for new connections, disconnections and executes commands */
