@@ -105,7 +105,7 @@ bool	User::commandNICK(t_cmd &cmd)
 }
 
 /* specify the username and realname of a new user */
-bool	User::USER(t_cmd &cmd)
+bool	User::commandUSER(t_cmd &cmd)
 {
 	// 1. Check if the user has a password
 	if (!_has_password) {
@@ -178,7 +178,7 @@ bool	User::commandPING(t_cmd &cmd)
 }
 
 /* OPER command used to obtain operator privileges. It checks for user identification, number of parameters and the correctness of the LOGIN and PASSWORD parameters */
-bool	User::OPER(t_cmd &cmd)
+bool	User::commandOPER(t_cmd &cmd)
 {
 	/* 1. Check User Identification
     If the user is not identified, send an error message no privileges (ERR_NOPRIVILEGES) */
@@ -368,7 +368,7 @@ bool	User::commandPRIVMSG(t_cmd &cmd)
 /* Command Notice is similar to PRIVMSG but typically used for server notifications or information. It checks user identification, 
 the number of parameters, and whether the target is a channel or user. Depending on the target, it broadcasts the notice to the channel or sends the notice to the user. If any check fails, it sends an appropriate error message and returns false.
 */
-bool	User::NOTICE(t_cmd &cmd)
+bool	User::commandNOTICE(t_cmd &cmd)
 {
     if (_is_identified == false) {
         if (_has_nick == 1) {

@@ -2,12 +2,6 @@
 
 t_data	*g_data_ptr;
 
-/* Function returns true if both parsing operations are successful */
-bool parsing(char **argv, int &port, string &password)
-{
-	return (parse_port(argv[1], port) && parse_password(argv[2], password));
-}
-
 /* Parse command-line arguments for a password */
 static bool	parse_password(char *password_str, string &password)
 {
@@ -40,4 +34,10 @@ static bool parse_port(char *port_str, int &port)
 	if (port > 65535)
 		return error("Error: port number is too big");
 	return true;	
+}
+
+/* Function returns true if both parsing operations are successful */
+bool parsing(char **argv, int &port, string &password)
+{
+	return (parse_port(argv[1], port) && parse_password(argv[2], password));
 }

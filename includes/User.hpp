@@ -43,19 +43,19 @@ class User
 
 		bool	commandPASS(t_cmd &cmd);
 		bool	commandNICK(t_cmd &cmd);
-		bool	USER(t_cmd &cmd);
+		bool	commandUSER(t_cmd &cmd);
 		bool	commandPING(t_cmd &cmd);
 		bool	commandJOIN(t_cmd &cmd);
-		bool	NAMES(t_cmd &cmd);
+		bool	commandNAMES(t_cmd &cmd);
 		bool	commandPRIVMSG(t_cmd &cmd);
 		int		commandQUIT(t_cmd &cmd);
-		bool	PART(t_cmd &cmd);
-		bool	KICK(t_cmd &cmd);
+		bool	commandPART(t_cmd &cmd);
+		bool	commandKICK(t_cmd &cmd);
 		int		commandKILL(t_cmd &cmd);
-		bool	OPER(t_cmd &cmd);
+		bool	commandOPER(t_cmd &cmd);
 		bool	commandMODE(t_cmd &cmd);
-		bool	TOPIC(t_cmd &cmd);
-		bool	NOTICE(t_cmd &cmd);
+		bool	commandTOPIC(t_cmd &cmd);
+		bool	commandNOTICE(t_cmd &cmd);
 		bool	commandINVITE(t_cmd &cmd);
 		bool	commandUnknown(t_cmd &cmd);
 
