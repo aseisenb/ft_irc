@@ -104,27 +104,27 @@ void	executeCommands(t_cmd &cmd, User *user)
 		} else if (cmd.cmd == "NICK") {
 			result = user->commandNICK(cmd);
 		} else if (cmd.cmd == "USER") {
-			result = user->USER(cmd);
+			result = user->commandUSER(cmd);
 		} else if (cmd.cmd == "PING") {
 			result = user->commandPING(cmd);
 		} else if (cmd.cmd == "JOIN") {
 			result = user->commandJOIN(cmd);
 		} else if (cmd.cmd == "NAMES") {
-			result = user->NAMES(cmd);
+			result = user->commandNAMES(cmd);
 		} else if (cmd.cmd == "PRIVMSG") {
 			result = user->commandPRIVMSG(cmd);
 		}else if (cmd.cmd == "PART") {
-			result = user->PART(cmd);
+			result = user->commandPART(cmd);
 		} else if (cmd.cmd == "KICK") {
-			result = user->KICK(cmd);
+			result = user->commandKICK(cmd);
 		} else if (cmd.cmd == "OPER") {
-			result = user->OPER(cmd);
+			result = user->commandOPER(cmd);
 		} else if (cmd.cmd == "MODE") {
 			result = user->commandMODE(cmd);
 		} else if (cmd.cmd == "TOPIC") {
-			result = user->TOPIC(cmd);
+			result = user->commandTOPIC(cmd);
 		} else if (cmd.cmd == "NOTICE") {
-			result = user->NOTICE(cmd);
+			result = user->commandNOTICE(cmd);
 		} else if (cmd.cmd == "INVITE") {
 			result = user->commandINVITE(cmd);
 		}else if (cmd.cmd == "QUIT") {

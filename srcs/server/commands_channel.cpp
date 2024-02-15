@@ -94,7 +94,7 @@ bool	User::commandJOIN(t_cmd &cmd)
  * 
  * @link	https://modern.ircdocs.horse/#topic-message
  */
-bool	User::TOPIC(t_cmd &cmd)
+bool	User::commandTOPIC(t_cmd &cmd)
 {
 	/*  ********************************************************************* */
 							/*	General checks	*/
@@ -168,7 +168,7 @@ bool	User::TOPIC(t_cmd &cmd)
  * 
  * @attention	one channel at a time
  */
-bool	User::NAMES(t_cmd &cmd)
+bool	User::commandNAMES(t_cmd &cmd)
 {
 	Channel	*target_channel;
 
@@ -281,7 +281,7 @@ bool	User::commandINVITE(t_cmd &cmd)
  * @attention	Works one part at a time
  * @link		https://modern.ircdocs.horse/#part-message
  */
-bool	User::PART(t_cmd &cmd)
+bool	User::commandPART(t_cmd &cmd)
 {
 	/*  ********************************************************************* */
                                 /*  Basic checks  */
@@ -344,7 +344,7 @@ bool	User::PART(t_cmd &cmd)
  * @attention	One user at a time
  * @link		https://modern.ircdocs.horse/#kick-message
  */
-bool	User::KICK(t_cmd &cmd)
+bool	User::commandKICK(t_cmd &cmd)
 {
 	/*	********************************************************************* */
 								/*	Basic tests	*/
