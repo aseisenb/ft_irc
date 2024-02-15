@@ -367,7 +367,7 @@ bool	User::commandKICK(t_cmd &cmd)
 		channel->transmit(RPL_KICK2(user_id(_nick, _user, "localhost"), channel_name, target_name, cmd.have_last_param), -1);
 	} else 
 	{
-		channel->transmit(RPL_KICK2(user_id(_nick, _user, "localhost"), channel_name, target_name, "Don't like your name"), -1);
+		channel->transmit(RPL_KICK2(user_id(_nick, _user, "localhost"), channel_name, target_name, "was kicked from the channel"), -1);
 	}
 	channel->kick_user(target_user->getFd());
 	target_user->deleteChannel(channel_name);
