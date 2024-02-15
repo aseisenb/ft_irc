@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 		if (epoll_fds < 0)
 			return (clear_data(data), error("epoll_wait() failed"), EXIT_FAILURE);
 		for (int i = 0; i < epoll_fds; i++)
-			server_actions(data, i);		
+			central_server(data, i);		
 	}
 	return (EXIT_SUCCESS);
 }

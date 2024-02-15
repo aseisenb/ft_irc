@@ -67,8 +67,8 @@ bool	User::commandJOIN(t_cmd &cmd)
 		sendMessage(CREATEDCHANNEL(channel_name));
 		g_data_ptr->channels[channel_name] = channel;
 	}
-	channel->broadcast(JOIN(_nick, _user, "localhost",  channel_name), -1);
-	if (channel->get_topic_set() == true) 
+	channel->transmit(JOIN(_nick, _user, "localhost",  channel_name), -1);
+	if (channel->get_make_topic() == true) 
 	{
 		sendMessage(RPL_TOPIC(_nick, _user, "localhost", channel_name, channel->get_topic()));
 	}
@@ -116,7 +116,7 @@ bool	User::commandTOPIC(t_cmd &cmd)
 	/*	Reading the topic	*/
 	if (cmd.last_param == false)
 	{
-		if (channel->get_topic_set() == false) 
+		if (channel->get_make_topic() == false) 
 		{
 			sendMessage(RPL_NOTOPIC(_nick, _user, "localhost", channel_name));
 		} 
@@ -128,20 +128,20 @@ bool	User::commandTOPIC(t_cmd &cmd)
 	}
 
 	/*	Write the topic	*/
-	if (channel->get_topic_protected() == true && channel->is_op(_fd) == false) 
+	if (channel->get_protected_topic() == true && channel->is_operator(_fd) == false) 
 	{
 		sendMessage(ERR_CHANOPRIVSNEEDED(user_id(_nick, _user, "localhost"), channel_name));
 		return false;
 	}
 	if (cmd.have_last_param.size() <= 1)
 	{
-		channel->unset_topic();
-		channel->broadcast(RPL_TOPIC2(_nick, _user, "localhost", channel_name, ""), -1);
+		channel->delete_topic();
+		channel->transmit(RPL_TOPIC2(_nick, _user, "localhost", channel_name, ""), -1);
 	} 
 	else 
 	{
-		channel->set_topic(cmd.have_last_param);
-		channel->broadcast(RPL_TOPIC2(_nick, _user, "localhost", channel_name, cmd.have_last_param), -1);
+		channel->create_topic(cmd.have_last_param);
+		channel->transmit(RPL_TOPIC2(_nick, _user, "localhost", channel_name, cmd.have_last_param), -1);
 	}
 	return true;
 }
@@ -234,7 +234,7 @@ bool	User::commandINVITE(t_cmd &cmd)
 		sendMessage(ERR_NOTONCHANNEL(channel_name, _nick));
 		return false;
 	} 
-	else if (channel->get_invite_only() == true && channel->is_op(_fd) == false) 
+	else if (channel->get_invite_only() == true && channel->is_operator(_fd) == false) 
 	{
 		sendMessage(ERR_CHANOPRIVSNEEDED(user_id(_nick, _user, "localhost"), channel_name));
 		return false;	
@@ -300,12 +300,12 @@ bool	User::commandPART(t_cmd &cmd)
 		/*	Notify everybody that client quitted the channel  */
 	if (cmd.last_param == false) 
 	{
-		channel->broadcast(PART_WOREASON(_nick, _user, "localhost", channel_name), -1);
+		channel->transmit(PART_WOREASON(_nick, _user, "localhost", channel_name), -1);
 	} 
 	else 
 	{
 		// cout << "I was in WREASON! " << PART_WREASON(_nick, _user, "localhost", channel_name, cmd.have_last_param) << endl;
-		channel->broadcast(PART_WREASON(_nick, _user, "localhost", channel_name, cmd.have_last_param), -1);
+		channel->transmit(PART_WREASON(_nick, _user, "localhost", channel_name, cmd.have_last_param), -1);
 	}
 	channel->part(_fd);
 	_channels.erase(find(_channels.begin(), _channels.end(), channel));
@@ -372,7 +372,7 @@ bool	User::commandKICK(t_cmd &cmd)
 		sendMessage(ERR_NOTONCHANNEL(channel_name, _nick));
 		return false;
 	}
-	if (channel->is_op(_fd) == false) 
+	if (channel->is_operator(_fd) == false) 
 	{
 		sendMessage(ERR_CHANOPRIVSNEEDED(user_id(_nick, _user, "localhost"), channel_name));
 		return false;
@@ -389,10 +389,10 @@ bool	User::commandKICK(t_cmd &cmd)
 
 	if (cmd.last_param == true) 
 	{
-		channel->broadcast(RPL_KICK2(user_id(_nick, _user, "localhost"), channel_name, target_name, cmd.have_last_param), -1);
+		channel->transmit(RPL_KICK2(user_id(_nick, _user, "localhost"), channel_name, target_name, cmd.have_last_param), -1);
 	} else 
 	{
-		channel->broadcast(RPL_KICK2(user_id(_nick, _user, "localhost"), channel_name, target_name, "Don't like your name"), -1);
+		channel->transmit(RPL_KICK2(user_id(_nick, _user, "localhost"), channel_name, target_name, "Don't like your name"), -1);
 	}
 	channel->kick_user(target_user->getFd());
 	target_user->deleteChannel(channel_name);
@@ -482,7 +482,7 @@ bool	User::commandMODE(t_cmd &cmd)
 		sendMessage(ERR_NOSUCHCHANNEL(_nick, channel_name));
 		return false;
 	}
-	if (channel->is_op(_fd) == false) 
+	if (channel->is_operator(_fd) == false) 
 	{
 		sendMessage(ERR_NOPRIVILEGES(_nick));
 		return false;
@@ -496,23 +496,23 @@ bool	User::commandMODE(t_cmd &cmd)
 	mode = cmd.parameters.at(1);
 	if (mode == "+i") 
 	{
-		channel->set_invite_only(true);
-		channel->broadcast(MODE2(user_id(_nick, _user, "localhost"), channel_name, "+i", "is now invite-only."), -1);
+		channel->make_invite_only(true);
+		channel->transmit(MODE2(user_id(_nick, _user, "localhost"), channel_name, "+i", "is now invite-only."), -1);
 	}
 	else if (mode == "-i") 
 	{
-		channel->set_invite_only(false);
-		channel->broadcast(MODE2(user_id(_nick, _user, "localhost"), channel_name, "-i", "is no longer invite-only."), -1);
+		channel->make_invite_only(false);
+		channel->transmit(MODE2(user_id(_nick, _user, "localhost"), channel_name, "-i", "is no longer invite-only."), -1);
 	}
 	else if (mode == "+t") 
 	{
-		channel->set_protected_topic(true);
-		channel->broadcast(MODE2(user_id(_nick, _user, "localhost"), channel_name, "+t", "topic is now protected."), -1);
+		channel->make_topic_protected(true);
+		channel->transmit(MODE2(user_id(_nick, _user, "localhost"), channel_name, "+t", "topic is now protected."), -1);
 	}
 	else if (mode == "-t") 
 	{
-		channel->set_protected_topic(false);
-		channel->broadcast(MODE2(user_id(_nick, _user, "localhost"), channel_name, "-t", "topic is no longer protected."), -1);
+		channel->make_topic_protected(false);
+		channel->transmit(MODE2(user_id(_nick, _user, "localhost"), channel_name, "-t", "topic is no longer protected."), -1);
 	}
 	else if (mode == "+k")
 	{
@@ -533,14 +533,14 @@ bool	User::commandMODE(t_cmd &cmd)
 		} 
 		else 
 		{
-			channel->enable_locked_mode(cmd.parameters.at(2));
-			channel->broadcast(MODE2(user_id(_nick, _user, "localhost"), channel_name, "+k", "is now locked."), -1);
+			channel->set_locked_mode(cmd.parameters.at(2));
+			channel->transmit(MODE2(user_id(_nick, _user, "localhost"), channel_name, "+k", "is now locked."), -1);
 		}
 	}
 	else if (mode == "-k")
 	{
-		channel->disable_locked_mode();
-		channel->broadcast(MODE2(user_id(_nick, _user, "localhost"), channel_name, "-k", "is no longer locked."), -1);
+		channel->unset_locked_mode();
+		channel->transmit(MODE2(user_id(_nick, _user, "localhost"), channel_name, "-k", "is no longer locked."), -1);
 	}
 	else if (mode == "+o")
 	{
@@ -565,10 +565,10 @@ bool	User::commandMODE(t_cmd &cmd)
 			return false;
 		}
 
-		if (channel->is_op(user->getFd()) == false) 
+		if (channel->is_operator(user->getFd()) == false) 
 		{
-			channel->op_user(user->getFd());
-			channel->broadcast(MODE2(user_id(_nick, _user, "localhost"), channel_name, "+o", user->getNick() + " is now channel operator."), -1);
+			channel->make_operator(user->getFd());
+			channel->transmit(MODE2(user_id(_nick, _user, "localhost"), channel_name, "+o", user->getNick() + " is now channel operator."), -1);
 		}
 		return true;
 	}
@@ -596,9 +596,9 @@ bool	User::commandMODE(t_cmd &cmd)
 			return false;
 		}
 
-		if (channel->is_op(user->getFd()) == true){
-			channel->deop_user(user->getFd());
-			channel->broadcast(MODE2(user_id(_nick, _user, "localhost"), channel_name, "-o", user->getNick() + " is no longer channel operator."), -1);
+		if (channel->is_operator(user->getFd()) == true){
+			channel->take_operator(user->getFd());
+			channel->transmit(MODE2(user_id(_nick, _user, "localhost"), channel_name, "-o", user->getNick() + " is no longer channel operator."), -1);
 		}
 		return true;
 	}
@@ -617,12 +617,12 @@ bool	User::commandMODE(t_cmd &cmd)
 			return false;
 		channel->set_max_users(value);
 		channel->set_has_user_limit(true);
-		channel->broadcast(MODE2(user_id(_nick, _user, "localhost"), channel_name, "+l", "is now limited in members ") + ft_itoa(value) + ".", -1);
+		channel->transmit(MODE2(user_id(_nick, _user, "localhost"), channel_name, "+l", "is now limited in members ") + ft_itoa(value) + ".", -1);
 	}
 	else if (mode == "-l")
 	{
 		channel->set_has_user_limit(false);
-		channel->broadcast(MODE2(user_id(_nick, _user, "localhost"), channel_name, "-l", "is no longer limited in members."), -1);
+		channel->transmit(MODE2(user_id(_nick, _user, "localhost"), channel_name, "-l", "is no longer limited in members."), -1);
 	}
 	else
 	{

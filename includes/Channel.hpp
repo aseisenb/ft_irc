@@ -11,22 +11,22 @@ class Channel
 		~Channel();
 
 		bool			is_user(int	fd_user);
-		bool			is_op(int fd_user);
+		bool			is_operator(int fd_user);
 		bool			is_invited(int fd_user);
 		
 		void			add_user(int fd_user);
 		void			kick_user(int fd_to_kick);
 		void			part(int fd_user);
-		void			op_user( int fd_to_op);
-		void			deop_user( int fd_to_deop);
+		void			make_operator( int fd_to_op);
+		void			take_operator( int fd_to_deop);
 		void			invite_user(int fd_to_invite);
-		void			enable_locked_mode(string &key);
-		void			disable_locked_mode();
+		void			set_locked_mode(string &key);
+		void			unset_locked_mode();
 
-		void			set_invite_only(bool mode);
-		void			set_topic(string topic);
-		void			unset_topic();
-		void			set_protected_topic(bool mode);
+		void			make_invite_only(bool mode);
+		void			create_topic(string topic);
+		void			delete_topic();
+		void			make_topic_protected(bool mode);
 		void			set_max_users(int max_users);
 		void			set_has_user_limit(bool mode);
 
@@ -38,12 +38,12 @@ class Channel
 		string			get_topic(void) const;
 		bool			get_invite_only(void) const;
 		string			get_key(void) const;
-		bool			get_topic_set(void) const;
-		bool			get_topic_protected(void) const;
+		bool			get_make_topic(void) const;
+		bool			get_protected_topic(void) const;
 		bool			get_channel_locked(void) const;
 		unsigned int	get_user_limit(void) const;
 		bool			get_has_user_limit(void) const;
-		void			broadcast(string message, int source);
+		void			transmit(string message, int source);
 		void			print_names(int target_fd);
 		static Channel *getChannel(string name);
 
