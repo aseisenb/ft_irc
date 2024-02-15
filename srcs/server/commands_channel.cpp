@@ -19,7 +19,8 @@ bool	User::commandJOIN(t_cmd &cmd)
 	string	channel_key;
 
     /*  Basic checks  */
-	if (_is_identified == false) {
+	if (_is_identified == false) 
+	{
         if (_has_nick == 1) {
     		sendMessage(ERR_NOPRIVILEGES(_nick));
         } else {
@@ -27,14 +28,16 @@ bool	User::commandJOIN(t_cmd &cmd)
         }
     	return false;
 	}
-	if (cmd.parameters.size() < 1) {
+	if (cmd.parameters.size() < 1) 
+	{
 		sendMessage(ERR_NEEDMOREPARAMS(_nick, "JOIN"));
 		return false;
 	}
 
 	/*	Parse the channel info */
 	channel_name = cmd.parameters.front();
-    if (channel_name[0] != '#') {
+    if (channel_name[0] != '#') 
+	{
         sendMessage(ERR_BADCHANMASK(channel_name));
         return false;
     }
@@ -47,15 +50,18 @@ bool	User::commandJOIN(t_cmd &cmd)
 	/*	Interract with the channel	*/
     if (channel)
 	{
-		if (channel->get_invite_only() == true && channel->is_invited(_fd) == false) {
+		if (channel->get_invite_only() == true && channel->is_invited(_fd) == false) 
+		{
 			sendMessage(ERR_INVITEONLYCHAN(_nick, channel_name)); // user_id(_nick, _user, "localhost"), 
 			return false;
 		}
-		if (channel->get_has_user_limit() == true && channel->get_user_limit() == channel->get_users().size()) {
+		if (channel->get_has_user_limit() == true && channel->get_user_limit() == channel->get_users().size()) 
+		{
 			sendMessage(ERR_CHANNELISFULL(_nick, channel_name));
 			return false;
 		}
-		if (channel->get_channel_locked() == true && channel->get_key() != channel_key) {
+		if (channel->get_channel_locked() == true && channel->get_key() != channel_key) 
+		{
 			sendMessage(ERR_BADCHANNELKEY(_nick, channel_name));
 			return false;
 		}
@@ -70,7 +76,8 @@ bool	User::commandJOIN(t_cmd &cmd)
 		g_data_ptr->channels[channel_name] = channel;
 	}
 	channel->broadcast(JOIN(_nick, _user, "localhost",  channel_name), -1);
-	if (channel->get_topic_set() == true) {
+	if (channel->get_topic_set() == true) 
+	{
 		sendMessage(RPL_TOPIC(_nick, _user, "localhost", channel_name, channel->get_topic()));
 	}
 	channel->print_names(_fd);
@@ -93,13 +100,16 @@ bool	User::commandTOPIC(t_cmd &cmd)
 	/*	General checks	*/
 	if (_is_identified == false)
 	{
-        if (_has_nick == 1) {
+        if (_has_nick == 1)
+		{
     		sendMessage(ERR_NOPRIVILEGES(_nick));
-        } else {
+        } else 
+		{
             sendMessage(ERR_NOPRIVILEGES(ft_itoa(_id)));
         }
     	return false;
-	} else if (cmd.parameters.size() == 0) {
+	} else if (cmd.parameters.size() == 0) 
+	{
 		sendMessage(ERR_NEEDMOREPARAMS(_nick, "TOPIC"));
 		return false;
 	}
@@ -109,10 +119,13 @@ bool	User::commandTOPIC(t_cmd &cmd)
 	string	channel_name = cmd.parameters.front();
 	Channel	*channel = Channel::getChannel(channel_name);
 
-	if (channel == NULL) {
+	if (channel == NULL) 
+	{
 		sendMessage(ERR_NOSUCHCHANNEL(_nick, channel_name));
 		return false;
-	} else if (channel->is_user(_fd) == false) {
+	} 
+	else if (channel->is_user(_fd) == false) 
+	{
 		sendMessage(ERR_NOTONCHANNEL(channel_name, _nick));
 		return false;
 	}
@@ -120,23 +133,30 @@ bool	User::commandTOPIC(t_cmd &cmd)
 	/*	Reading the topic	*/
 	if (cmd.last_param == false)
 	{
-		if (channel->get_topic_set() == false) {
+		if (channel->get_topic_set() == false) 
+		{
 			sendMessage(RPL_NOTOPIC(_nick, _user, "localhost", channel_name));
-		} else {
+		} 
+		else 
+		{
 			sendMessage(RPL_TOPIC(_nick, _user, "localhost", channel_name, channel->get_topic()));
 		}
 		return true;
 	}
 
 	/*	Write the topic	*/
-	if (channel->get_topic_protected() == true && channel->is_op(_fd) == false) {
+	if (channel->get_topic_protected() == true && channel->is_op(_fd) == false) 
+	{
 		sendMessage(ERR_CHANOPRIVSNEEDED(user_id(_nick, _user, "localhost"), channel_name));
 		return false;
 	}
-	if (cmd.have_last_param.size() <= 1) {
+	if (cmd.have_last_param.size() <= 1)
+	{
 		channel->unset_topic();
 		channel->broadcast(RPL_TOPIC2(_nick, _user, "localhost", channel_name, ""), -1);
-	} else {
+	} 
+	else 
+	{
 		channel->set_topic(cmd.have_last_param);
 		channel->broadcast(RPL_TOPIC2(_nick, _user, "localhost", channel_name, cmd.have_last_param), -1);
 	}
@@ -155,7 +175,8 @@ bool	User::commandNAMES(t_cmd &cmd)
 	Channel	*target_channel;
 
 	/*	Basic tests	*/
-	if (_is_identified == false) {
+	if (_is_identified == false) 
+	{
         if (_has_nick == 1) {
     		sendMessage(ERR_NOPRIVILEGES(_nick));
         } else {
@@ -163,13 +184,15 @@ bool	User::commandNAMES(t_cmd &cmd)
         }
     	return false;
 	}
-	if (cmd.parameters.size() == 0) {
+	if (cmd.parameters.size() == 0) 
+	{
 		sendMessage(ERR_NEEDMOREPARAMS(_nick, "NAMES"));
 		return false;
 	}
 	
 	target_channel = Channel::getChannel(cmd.parameters.front());
-	if (target_channel == NULL) {
+	if (target_channel == NULL) 
+	{
 		sendMessage(ERR_NOSUCHCHANNEL(_nick, target_channel->get_name()));
 		return false;
 	}
@@ -202,14 +225,20 @@ bool	User::commandINVITE(t_cmd &cmd)
 	/*	********************************************************************* */
 								/*	Basic tests	*/
 	/*	********************************************************************* */
-	if (_is_identified == false) {
-        if (_has_nick == 1) {
+	if (_is_identified == false) 
+	{
+        if (_has_nick == 1) 
+		{
     		sendMessage(ERR_NOPRIVILEGES(_nick));
-        } else {
+        } 
+		else 
+		{
             sendMessage(ERR_NOPRIVILEGES(ft_itoa(_id)));
         }
     	return false;
-	} else if (cmd.parameters.size() != 2) {
+	} 
+	else if (cmd.parameters.size() != 2) 
+	{
 		sendMessage(ERR_NEEDMOREPARAMS(_nick, "INVITE"));
 		return false;
 	}
@@ -228,19 +257,28 @@ bool	User::commandINVITE(t_cmd &cmd)
 	user = User::getUser(user_name, server);
 	channel	= Channel::getChannel(channel_name);
 
-	if (channel == NULL) {
+	if (channel == NULL) 
+	{
 		sendMessage(ERR_NOSUCHCHANNEL(_nick, channel_name));
 		return false;
-	} else if (user == NULL) {
+	} 
+	else if (user == NULL) 
+	{
 		sendMessage(ERR_NOSUCHNICKCHANNEL(user_name));
 		return false;
-	} else if (channel->is_user(_fd) == false) {
+	} 
+	else if (channel->is_user(_fd) == false) 
+	{
 		sendMessage(ERR_NOTONCHANNEL(channel_name, _nick));
 		return false;
-	} else if (channel->get_invite_only() == true && channel->is_op(_fd) == false) {
+	} 
+	else if (channel->get_invite_only() == true && channel->is_op(_fd) == false) 
+	{
 		sendMessage(ERR_CHANOPRIVSNEEDED(user_id(_nick, _user, "localhost"), channel_name));
 		return false;	
-	} else if (channel->is_user(user->getFd()) == true) {
+	} 
+	else if (channel->is_user(user->getFd()) == true) 
+	{
 		sendMessage(ERR_USERONCHANNEL(_nick, user->getNick(), channel_name));
 		return false;
 	}
@@ -270,16 +308,21 @@ bool	User::commandPART(t_cmd &cmd)
     
 	/*	Basic tests	*/
 		/*	If not authenticated	*/
-	if (_is_identified == false) {
-        if (_has_nick == 1) {
+	if (_is_identified == false) 
+	{
+        if (_has_nick == 1) 
+		{
     		sendMessage(ERR_NOPRIVILEGES(_nick));
-        } else {
+        } 
+		else 
+		{
             sendMessage(ERR_NOPRIVILEGES(ft_itoa(_id)));
         }
     	return false;
 	}
 		/*	If not enough parameters	*/
-	if (cmd.parameters.size() == 0) {
+	if (cmd.parameters.size() == 0) 
+	{
 		sendMessage(ERR_NEEDMOREPARAMS(_nick, "PART"));
 		return false;
 	}
@@ -291,19 +334,24 @@ bool	User::commandPART(t_cmd &cmd)
 	string	channel_name = cmd.parameters.front(); 
 	Channel	*channel = Channel::getChannel(channel_name);
 	
-	if (channel == NULL) {
+	if (channel == NULL) 
+	{
 		sendMessage(ERR_NOSUCHCHANNEL(_nick, channel_name));
 		return false;
 	}
-	if (channel->is_user(_fd) == false) {
+	if (channel->is_user(_fd) == false) 
+	{
 		sendMessage(ERR_NOTONCHANNEL(channel_name, _nick));
 		return false;
 	}
 	/*	If OK	*/
 		/*	Notify everybody that client quitted the channel  */
-	if (cmd.last_param == false) {
+	if (cmd.last_param == false) 
+	{
 		channel->broadcast(PART_WOREASON(_nick, _user, "localhost", channel_name), -1);
-	} else {
+	} 
+	else 
+	{
 		// cout << "I was in WREASON! " << PART_WREASON(_nick, _user, "localhost", channel_name, cmd.have_last_param) << endl;
 		channel->broadcast(PART_WREASON(_nick, _user, "localhost", channel_name, cmd.have_last_param), -1);
 	}
@@ -331,15 +379,20 @@ bool	User::commandKICK(t_cmd &cmd)
 	/*	********************************************************************* */
 								/*	Basic tests	*/
 	/*	********************************************************************* */
-	if (_is_identified == false) {
-        if (_has_nick == 1) {
+	if (_is_identified == false) 
+	{
+        if (_has_nick == 1) 
+		{
     		sendMessage(ERR_NOPRIVILEGES(_nick));
-        } else {
+        } 
+		else 
+		{
             sendMessage(ERR_NOPRIVILEGES(ft_itoa(_id)));
         }
     	return false;
 	}
-	if (cmd.parameters.size() < 2) {
+	if (cmd.parameters.size() < 2) 
+	{
 		sendMessage(ERR_NEEDMOREPARAMS(_nick, "KICK"));
 		return false;
 	}
@@ -352,23 +405,28 @@ bool	User::commandKICK(t_cmd &cmd)
 	Channel	*channel = Channel::getChannel(channel_name);
 	User	*target_user = User::getUser(target_name, server);
 
-	if (channel == NULL) {
+	if (channel == NULL) 
+	{
 		sendMessage(ERR_NOSUCHCHANNEL(_nick, channel_name));
 		return false;
 	}
-	if (target_user == NULL) {
+	if (target_user == NULL) 
+	{
 		sendMessage(ERR_NOSUCHNICKCHANNEL(cmd.parameters.at(1)));
 		return false;
 	}
-	if (channel->is_user(_fd) == false) {
+	if (channel->is_user(_fd) == false) 
+	{
 		sendMessage(ERR_NOTONCHANNEL(channel_name, _nick));
 		return false;
 	}
-	if (channel->is_op(_fd) == false) {
+	if (channel->is_op(_fd) == false) 
+	{
 		sendMessage(ERR_CHANOPRIVSNEEDED(user_id(_nick, _user, "localhost"), channel_name));
 		return false;
 	}
-	if (channel->is_user(target_user->getFd()) == false) {
+	if (channel->is_user(target_user->getFd()) == false) 
+	{
 		sendMessage(ERR_USERNOTINCHANNEL(target_user->getNick(), channel_name));
 		return false;
 	}
@@ -377,9 +435,11 @@ bool	User::commandKICK(t_cmd &cmd)
 					/*	Kick the user from the channel	*/
 	/*	********************************************************************* */
 
-	if (cmd.last_param == true) {
+	if (cmd.last_param == true) 
+	{
 		channel->broadcast(RPL_KICK2(user_id(_nick, _user, "localhost"), channel_name, target_name, cmd.have_last_param), -1);
-	} else {
+	} else 
+	{
 		channel->broadcast(RPL_KICK2(user_id(_nick, _user, "localhost"), channel_name, target_name, "Don't like your name"), -1);
 	}
 	channel->kick_user(target_user->getFd());
@@ -408,9 +468,12 @@ bool	User::commandMODE(t_cmd &cmd)
 		/*	If not authenticated	*/
 	if (_is_identified == false)		// Not identified
 	{
-        if (_has_nick == 1) {
+        if (_has_nick == 1) 
+		{
     		sendMessage(ERR_NOPRIVILEGES(_nick));
-        } else {
+        } 
+		else 
+		{
             sendMessage(ERR_NOPRIVILEGES(ft_itoa(_id)));
         }
     	return false;
@@ -430,7 +493,8 @@ bool	User::commandMODE(t_cmd &cmd)
 			Channel *smartChannel;
 
 			smartChannel = Channel::getChannel(myBeautifulString);
-			if (smartChannel == NULL) {
+			if (smartChannel == NULL) 
+			{
 				sendMessage(ERR_NOSUCHCHANNEL(_nick, cmd.parameters.front()));
 				return false;
 			}
@@ -441,7 +505,8 @@ bool	User::commandMODE(t_cmd &cmd)
 			User	*sportyUser;
 
 			sportyUser = User::getUser(myBeautifulString, g_data_ptr);
-			if (sportyUser == NULL) {
+			if (sportyUser == NULL) 
+			{
 				sendMessage(ERR_NOSUCHNICKCHANNEL(myBeautifulString));
 				return false;
 			}
@@ -460,11 +525,13 @@ bool	User::commandMODE(t_cmd &cmd)
 	
 	channel_name = cmd.parameters.front();
 	channel = Channel::getChannel(channel_name);
-	if (channel == NULL) {
+	if (channel == NULL) 
+	{
 		sendMessage(ERR_NOSUCHCHANNEL(_nick, channel_name));
 		return false;
 	}
-	if (channel->is_op(_fd) == false) {
+	if (channel->is_op(_fd) == false) 
+	{
 		sendMessage(ERR_NOPRIVILEGES(_nick));
 		return false;
 	}
@@ -475,35 +542,45 @@ bool	User::commandMODE(t_cmd &cmd)
 	string mode;
 	
 	mode = cmd.parameters.at(1);
-	if (mode == "+i") {
+	if (mode == "+i") 
+	{
 		channel->set_invite_only(true);
 		channel->broadcast(MODE2(user_id(_nick, _user, "localhost"), channel_name, "+i", "is now invite-only."), -1);
 	}
-	else if (mode == "-i") {
+	else if (mode == "-i") 
+	{
 		channel->set_invite_only(false);
 		channel->broadcast(MODE2(user_id(_nick, _user, "localhost"), channel_name, "-i", "is no longer invite-only."), -1);
 	}
-	else if (mode == "+t") {
+	else if (mode == "+t") 
+	{
 		channel->set_protected_topic(true);
 		channel->broadcast(MODE2(user_id(_nick, _user, "localhost"), channel_name, "+t", "topic is now protected."), -1);
 	}
-	else if (mode == "-t") {
+	else if (mode == "-t") 
+	{
 		channel->set_protected_topic(false);
 		channel->broadcast(MODE2(user_id(_nick, _user, "localhost"), channel_name, "-t", "topic is no longer protected."), -1);
 	}
 	else if (mode == "+k")
 	{
-		if (cmd.parameters.size() != 3) {
+		if (cmd.parameters.size() != 3) 
+		{
 			sendMessage(ERR_NEEDMOREPARAMS(_nick, "MODE"));
 			return false;
-		} else if (channel->get_channel_locked() == true) {
+		} 
+		else if (channel->get_channel_locked() == true)
+		{
 			sendMessage(ERR_KEYSET(channel_name));
 			return false;
 		}
 
-		if (cmd.parameters.at(2).empty()) {
+		if (cmd.parameters.at(2).empty()) 
+		{
 			return false;
-		} else {
+		} 
+		else 
+		{
 			channel->enable_locked_mode(cmd.parameters.at(2));
 			channel->broadcast(MODE2(user_id(_nick, _user, "localhost"), channel_name, "+k", "is now locked."), -1);
 		}
@@ -515,7 +592,8 @@ bool	User::commandMODE(t_cmd &cmd)
 	}
 	else if (mode == "+o")
 	{
-		if (cmd.parameters.size() < 3) {
+		if (cmd.parameters.size() < 3) 
+		{
 			ERR_NEEDMOREPARAMS(_nick, "MODE");
 			return false;
 		}
@@ -525,15 +603,18 @@ bool	User::commandMODE(t_cmd &cmd)
 
 		user_name = cmd.parameters.at(2);
 		user = User::getUser(user_name, server);
-		if (user == NULL) {
+		if (user == NULL) 
+		{
 			sendMessage(ERR_NOSUCHNICKCHANNEL(cmd.parameters.at(2)));
 			return false;
-		} else if (channel->is_user(user->getFd()) == false) {
+		} else if (channel->is_user(user->getFd()) == false) 
+		{
 			sendMessage(ERR_NOTONCHANNEL(channel_name, user->getNick()));
 			return false;
 		}
 
-		if (channel->is_op(user->getFd()) == false) {
+		if (channel->is_op(user->getFd()) == false) 
+		{
 			channel->op_user(user->getFd());
 			channel->broadcast(MODE2(user_id(_nick, _user, "localhost"), channel_name, "+o", user->getNick() + " is now channel operator."), -1);
 		}
@@ -541,7 +622,8 @@ bool	User::commandMODE(t_cmd &cmd)
 	}
 	else if (mode == "-o")
 	{
-		if (cmd.parameters.size() != 3) {
+		if (cmd.parameters.size() != 3) 
+		{
 			ERR_NEEDMOREPARAMS(_nick, "MODE");
 			return false;
 		}
@@ -551,10 +633,13 @@ bool	User::commandMODE(t_cmd &cmd)
 
 		user_name = cmd.parameters.at(2);
 		user = User::getUser(user_name, server);
-		if (user == NULL) {
+		if (user == NULL) 
+		{
 			sendMessage(ERR_NOSUCHNICKCHANNEL(cmd.parameters.at(2)));
 			return false;
-		} else if (channel->is_user(user->getFd()) == false) {
+		} 
+		else if (channel->is_user(user->getFd()) == false) 
+		{
 			sendMessage(ERR_NOTONCHANNEL(channel_name, user->getNick()));
 			return false;
 		}
@@ -567,7 +652,8 @@ bool	User::commandMODE(t_cmd &cmd)
 	}
 	else if (mode == "+l")
 	{
-		if (cmd.parameters.size() != 3) {
+		if (cmd.parameters.size() != 3) 
+		{
 			sendMessage(ERR_NEEDMOREPARAMS(_nick, "MODE"));
 			return false;
 		}
